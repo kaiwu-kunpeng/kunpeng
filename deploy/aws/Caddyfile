@@ -1,0 +1,17 @@
+# 公网入口:自动 HTTPS(Let's Encrypt)。域名由 compose 注入的 KUNPENG_DOMAIN 提供。
+# 鉴权由鲲鹏自身登录体系负责(首启自动建 admin,未登录访问会被拦截)。
+{$KUNPENG_DOMAIN} {
+	encode zstd gzip
+
+	# 终端(WebSocket)与实时刷新流式直通,关闭响应缓冲
+	reverse_proxy kunpeng:7777 {
+		flush_interval -1
+	}
+
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		X-Content-Type-Options nosniff
+		X-Frame-Options DENY
+		Referrer-Policy no-referrer
+	}
+}

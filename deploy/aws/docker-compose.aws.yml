@@ -1,0 +1,75 @@
+# EC2/AWS 自托管形态:多项目注册表模式 + Caddy 公网 HTTPS 入口。
+# 用法(在仓库根目录,细节见 deploy/aws/README.md):
+#   docker build -t kunpeng-orchestrator:local -f Dockerfile .
+#   docker compose -f deploy/aws/docker-compose.aws.yml up -d --build
+# 配置读 deploy/aws/.env(setup-instance.sh 生成,已被 .gitignore 忽略)。
+#
+# 与根 docker-compose.yml 的三点差异(有意为之):
+#   1. 不设 KUNPENG_REPO、不传 --repo → 多项目注册表模式
+#      (serve 聚合 KUNPENG_STATE/projects.json,项目用 kunpeng register 登记)
+#   2. 不设 KUNPENG_ALLOW_INSECURE → 首启自动创建 admin 并打印随机密码,
+#      公网方向登录鉴权强制生效(公网只经 Caddy 进入)
+#   3. 7777 只发布到宿主机回环(SSH 隧道应急通道),公网流量一律走 Caddy 443
+name: kunpeng-aws
+
+services:
+  kunpeng:
+    build:
+      context: ../..
+      dockerfile: deploy/aws/Dockerfile
+    image: kunpeng-orchestrator:aws
+    user: "${KUNPENG_UID:-1000}:${KUNPENG_GID:-1000}"
+    restart: unless-stopped
+    env_file:
+      # 容器需要 .env 里的 KUNPENG_BACKEND / CLAUDE_CODE_OAUTH_TOKEN 等
+      - path: .env
+        required: false
+    environment:
+      KUNPENG_HOST: 0.0.0.0
+      KUNPENG_STATE: /var/lib/kunpeng
+      # AI 后端登录态落在持久化状态目录,重建容器不丢
+      CLAUDE_CONFIG_DIR: /var/lib/kunpeng/backend-auth/claude
+      CODEX_HOME: /var/lib/kunpeng/backend-auth/codex
+    command:
+      - serve
+      - "7777"
+      - --host
+      - 0.0.0.0
+    volumes:
+      # KUNPENG_STATE 内含跨项目 state、captures、后端登录态、账号密码
+      - type: bind
+        source: "${KUNPENG_STATE}"
+        target: /var/lib/kunpeng
+      # 被管理的项目仓根:宿主机 /srv/repos/* 挂为容器内 /workspace/repos/*
+      - type: bind
+        source: "${KUNPENG_REPOS}"
+        target: /workspace/repos
+    ports:
+      # 应急通道:ssh -L 7777:127.0.0.1:7777 <实例> 后本地打开 http://127.0.0.1:7777
+      - "127.0.0.1:7777:7777"
+
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    ports:
+      - "80:80"      # ACME HTTP-01 与重定向
+      - "443:443"
+      - "443:443/udp" # HTTP/3
+    environment:
+      KUNPENG_DOMAIN: "${KUNPENG_DOMAIN:?请在 deploy/aws/.env 设置 KUNPENG_DOMAIN}"
+    volumes:
+      - type: bind
+        source: ./Caddyfile
+        target: /etc/caddy/Caddyfile
+      - type: volume
+        source: caddy_data     # TLS 证书
+        target: /data
+      - type: volume
+        source: caddy_config
+        target: /config
+    depends_on:
+      - kunpeng
+
+volumes:
+  caddy_data:
+  caddy_config:
