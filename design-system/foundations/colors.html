@@ -1,0 +1,69 @@
+<!-- @dsCard group="Foundations" -->
+<!DOCTYPE html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>鲲鹏后台 · 配色系统</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",Inter,sans-serif;background:#F8FAFC;color:#0F172A;padding:30px;-webkit-font-smoothing:antialiased}
+  h1{font-size:20px;font-weight:760;letter-spacing:.3px}
+  .sub{color:#64748B;font-size:13px;margin:6px 0 24px}
+  .grp{font-size:12px;font-weight:700;color:#334155;text-transform:uppercase;letter-spacing:1px;margin:22px 0 10px}
+  .ramp{display:flex;gap:8px;flex-wrap:wrap}
+  .sw{width:104px;border-radius:10px;overflow:hidden;border:1px solid #E2E8F0;background:#fff}
+  .sw .c{height:52px}
+  .sw .m{padding:7px 9px;font-size:11px}
+  .sw .m b{display:block;font-weight:680;font-size:11.5px}
+  .sw .m span{color:#94A3B8}
+  .roles{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:8px}
+  .role{background:#fff;border:1px solid #E2E8F0;border-radius:12px;padding:14px 16px;display:flex;align-items:center;gap:12px}
+  .role .dot{width:38px;height:38px;border-radius:10px;flex-shrink:0}
+  .role .t{font-weight:680;font-size:13.5px}
+  .role .d{color:#64748B;font-size:11.5px;margin-top:2px}
+  .rule{margin-top:24px;background:#FFF7ED;border:1px solid #FED7AA;border-radius:12px;padding:14px 16px;font-size:12.5px;color:#C2410C;line-height:1.7}
+  .rule b{color:#9A3412}
+</style></head>
+<body>
+  <h1>鲲鹏后台 · 配色系统</h1>
+  <div class="sub">基于 Tailwind 色阶。纪律：<b>中性 Slate 打底 · 单一主色 Orange · 语义色克制</b>。</div>
+
+  <div class="grp">主色 · Orange 暖橙（大鹏向朝阳 · 扶摇直上）</div>
+  <div class="ramp">
+    <div class="sw"><div class="c" style="background:#FFF7ED"></div><div class="m"><b>orange-50</b><span>#FFF7ED</span></div></div>
+    <div class="sw"><div class="c" style="background:#FFEDD5"></div><div class="m"><b>orange-100</b><span>#FFEDD5</span></div></div>
+    <div class="sw"><div class="c" style="background:#FDBA74"></div><div class="m"><b>orange-300</b><span>#FDBA74</span></div></div>
+    <div class="sw"><div class="c" style="background:#F97316"></div><div class="m"><b>orange-500</b><span>#F97316</span></div></div>
+    <div class="sw"><div class="c" style="background:#EA580C"></div><div class="m" style="color:#fff;background:#EA580C"><b>orange-600 ★</b><span style="color:#FFEDD5">#EA580C 主</span></div></div>
+    <div class="sw"><div class="c" style="background:#C2410C"></div><div class="m"><b>orange-700</b><span>#C2410C</span></div></div>
+  </div>
+
+  <div class="grp">中性 · Slate</div>
+  <div class="ramp">
+    <div class="sw"><div class="c" style="background:#F8FAFC"></div><div class="m"><b>slate-50</b><span>#F8FAFC 底</span></div></div>
+    <div class="sw"><div class="c" style="background:#E2E8F0"></div><div class="m"><b>slate-200</b><span>#E2E8F0 边框</span></div></div>
+    <div class="sw"><div class="c" style="background:#94A3B8"></div><div class="m"><b>slate-400</b><span>#94A3B8</span></div></div>
+    <div class="sw"><div class="c" style="background:#64748B"></div><div class="m"><b>slate-500</b><span>#64748B 次文</span></div></div>
+    <div class="sw"><div class="c" style="background:#334155"></div><div class="m" style="color:#fff;background:#334155"><b>slate-700</b><span style="color:#CBD5E1">#334155</span></div></div>
+    <div class="sw"><div class="c" style="background:#0F172A"></div><div class="m" style="color:#fff;background:#0F172A"><b>slate-900</b><span style="color:#CBD5E1">#0F172A 主文</span></div></div>
+  </div>
+
+  <div class="grp">语义色（克制使用 · 与橙主色拉开分工）</div>
+  <div class="ramp">
+    <div class="sw"><div class="c" style="background:#16A34A"></div><div class="m" style="color:#fff;background:#16A34A"><b>green-600</b><span style="color:#BBF7D0">成功 / 通过</span></div></div>
+    <div class="sw"><div class="c" style="background:#D97706"></div><div class="m" style="color:#fff;background:#D97706"><b>amber-600</b><span style="color:#FDE68A">待办 / 提案</span></div></div>
+    <div class="sw"><div class="c" style="background:#DC2626"></div><div class="m" style="color:#fff;background:#DC2626"><b>red-600</b><span style="color:#FECACA">危险 / 拒绝</span></div></div>
+  </div>
+
+  <div class="grp">角色映射</div>
+  <div class="roles">
+    <div class="role"><span class="dot" style="background:linear-gradient(135deg,#F97316,#FBBF24)"></span><div><div class="t">品牌 / Logo</div><div class="d">orange→amber 渐变（朝阳）</div></div></div>
+    <div class="role"><span class="dot" style="background:#EA580C"></span><div><div class="t">主色 Primary</div><div class="d">导航高亮 · 主按钮 · 进度 · 链接</div></div></div>
+    <div class="role"><span class="dot" style="background:#16A34A"></span><div><div class="t">成功 Success</div><div class="d">健康 · 合并 · 交付 · 证据通过</div></div></div>
+    <div class="role"><span class="dot" style="background:#D97706"></span><div><div class="t">待办 Pending</div><div class="d">待我处理 · 提案门（偏黄 amber，区别于橙主色）</div></div></div>
+    <div class="role"><span class="dot" style="background:#DC2626"></span><div><div class="t">危险 Danger</div><div class="d">拒绝 · 崩溃 · 卡死</div></div></div>
+    <div class="role"><span class="dot" style="background:#F8FAFC;border:1px solid #E2E8F0"></span><div><div class="t">中性 Neutral</div><div class="d">背景 · 卡片 · 边框 · 文字</div></div></div>
+  </div>
+
+  <div class="rule">
+    <b>为什么不丑（暖色更要纪律）：</b>整页只有 Orange 一个主色承担「可点击 / 强调」，其余全是中性灰；橙是暖色、易与 amber/red 撞，所以严格分工——<b>Orange=主操作、Green=成功、Amber(偏黄)=待办、Red=危险</b>，各司其职不混用。换主色时只改 Orange 一组色阶，整套自动协调。
+  </div>
+</body></html>

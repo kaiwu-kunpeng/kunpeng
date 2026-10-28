@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>鲲鹏 Cockpit · 账号管理（产品文档）</title>
+<style>
+  :root{--ink:#1b1f24;--mut:#6b7785;--line:#e6e9ee;--accent:#e8732a;--bg:#fff;--card:#fafbfc}
+  *{box-sizing:border-box}
+  body{margin:0;font:15px/1.75 -apple-system,"PingFang SC","Microsoft YaHei",Segoe UI,sans-serif;color:var(--ink);background:var(--bg)}
+  .wrap{max-width:860px;margin:0 auto;padding:48px 28px 80px}
+  h1{font-size:28px;margin:0 0 6px;letter-spacing:.5px}
+  .sub{color:var(--mut);margin:0 0 30px}
+  h2{font-size:19px;margin:38px 0 12px;padding-left:11px;border-left:4px solid var(--accent)}
+  h3{font-size:15px;margin:20px 0 6px}
+  p,li{color:#2c333b}
+  code{background:var(--card);border:1px solid var(--line);border-radius:5px;padding:1px 6px;font:13px ui-monospace,Menlo,monospace}
+  table{border-collapse:collapse;width:100%;margin:12px 0;font-size:14px}
+  th,td{border:1px solid var(--line);padding:8px 11px;text-align:left;vertical-align:top}
+  th{background:var(--card);font-weight:600}
+  .tag{display:inline-block;background:#fff3eb;color:var(--accent);border:1px solid #f6cba6;border-radius:4px;padding:0 7px;font-size:12px;margin-right:4px}
+  .note{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:14px 18px;margin:16px 0}
+  .foot{color:var(--mut);font-size:13px;margin-top:48px;border-top:1px solid var(--line);padding-top:16px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>鲲鹏 Cockpit · 账号管理</h1>
+  <p class="sub">产品文档 ｜ 2026-06-22 ｜ 设置页·Web 用户增删改 + 分组手风琴</p>
+
+  <h2>一句话</h2>
+  <p>cockpit 设置页现在能<b>完整管理 Web 登录账号</b>——增、删、改（改名 / 切角色 / 改 profile / 重置密码），并把设置页五组内容做成<b>可折叠手风琴</b>，默认只展开「账号」，一屏清爽。仅 <code>owner</code> 角色可操作。</p>
+
+  <h2>能做什么</h2>
+  <table>
+    <tr><th>能力</th><th>说明</th></tr>
+    <tr><td>查看账号</td><td>列出所有 Web 用户：用户名 · 角色 · profile（项目隔离标识）。</td></tr>
+    <tr><td>添加账号</td><td>填用户名 / 初始密码 / 角色（owner｜member）/ profile，一键新增。</td></tr>
+    <tr><td><b>编辑账号</b>（本次新增）</td><td>每行「改」按钮 → 内联面板，可改<b>用户名</b>、切<b>角色</b>、改 <b>profile</b>、<b>重置密码</b>（密码留空则不改）。</td></tr>
+    <tr><td>删除账号</td><td>每行「删除」按钮，带二次确认。</td></tr>
+    <tr><td>改我的密码</td><td>当前密码 + 新密码，改自己的登录密码（不影响他人）。</td></tr>
+  </table>
+
+  <h2>角色与项目隔离</h2>
+  <ul>
+    <li><span class="tag">owner</span> 管理员：可管理所有账号（增删改）。</li>
+    <li><span class="tag">member</span> 成员：受限，只能访问分配给它的 <code>profile</code>（登录即场景隔离，互不串项目）。</li>
+  </ul>
+
+  <h2>防脚枪守卫</h2>
+  <p>账号是登录凭据，误操作会把人锁在门外。系统内建以下守卫：</p>
+  <ul>
+    <li><b>不能删除 / 降级最后一个 owner</b>——避免系统再无管理员、永久锁死。</li>
+    <li><b>不能删除当前登录的自己</b>——即便存在第二个 owner 也拦下（防 UI 脚枪）。</li>
+    <li><b>改名碰撞拒绝</b>——新用户名若与已有账号重名，拒绝。</li>
+    <li><b>越权拦截</b>——member 调用任何账号管理接口一律 403。</li>
+  </ul>
+
+  <h2>设置页手风琴</h2>
+  <p>设置页五组——<b>账号 / 通讯·远程批门 / 后端路由 / 运行状态(只读) / 偏好</b>——每组标题带 ▸/▾ 箭头，点标题展开或收起。进页面默认只展开「账号」，其余收起，避免一长条全摊开要翻半天。</p>
+
+  <h2>怎么用</h2>
+  <ol>
+    <li>以 <code>owner</code> 账号登录 cockpit。</li>
+    <li>左侧导航进「设置」，「账号」组默认已展开。</li>
+    <li>添加：底部表单填好 → 「添加账号」。</li>
+    <li>编辑：某行点「改」→ 改字段 → 「保存修改」。</li>
+    <li>删除：某行点「删除」→ 确认。</li>
+  </ol>
+
+  <div class="note">
+    <b>边界</b>：这是<b>个人多工作区</b>的账号能力（自用、自己的凭证、项目互不冲突），不是对外 SaaS 的用户系统。远程访问见运维笔记 <code>docs/runbooks/cockpit-remote-access.md</code>。
+  </div>
+
+  <p class="foot">技术实现见 <code>docs/design/2026-06-22-account-management-tech.md</code> ｜ 经验教训见 <code>docs/JOURNAL.md</code>（账号管理一节）。本功能后端走自建 loop（验收测试先行）、前端手改，全程真浏览器 e2e 验证，已合 <code>origin/main</code>。</p>
+</div>
+</body>
+</html>

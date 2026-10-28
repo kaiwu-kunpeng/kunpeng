@@ -1,0 +1,21 @@
+node_modules/
+dist/
+.build.lock/
+# 运行时 .kunpeng/ 全部为派生/运行态，不入库（制品/状态/锁/临时合并/生成文档）
+.kunpeng/wt/
+.kunpeng/artifacts/
+.kunpeng/captures/
+.kunpeng/captures
+.kunpeng/library/
+.kunpeng/product/
+.kunpeng/state/
+.kunpeng/locks/
+.kunpeng/merge-tmp/
+.kunpeng/project.json
+.kunpeng/DOCS.md
+.kunpeng/cockpit/
+.kunpeng/BOARD.md
+.kunpeng/board.json
+.kunpeng/kp-restart-serve.sh
+.DS_Store
+node_modules

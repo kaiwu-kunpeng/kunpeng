@@ -1,0 +1,4 @@
+[
+  "sensitive:orchestrator/package.json",
+  "verification:pipe-mask"
+]

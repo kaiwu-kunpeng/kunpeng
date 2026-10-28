@@ -1,0 +1,7 @@
+{
+  "cockpitUrl": "https://cockpit.aeohq.io",
+  "telegram": { "token": "@BotFather 的 bot token", "chatId": "给 bot 发条消息后 getUpdates 拿 chat_id" },
+  "serverChan": "个人微信:sct.ftqq.com 扫码关注方糖→拿 sendkey(免费 5 条/天)",
+  "wxpusher": { "appToken": "个人微信:wxpusher.zjiecode.com 建应用拿 appToken", "uid": "关注应用二维码后拿 UID(无日限)" },
+  "wechatWebhook": "预留:企业微信群机器人 webhook(个人微信用上面 serverChan/wxpusher)"
+}

@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>远程访问总控台</title>
+<style>
+:root{color-scheme:light dark;--bg:#f6f8fb;--paper:#fff;--text:#172033;--line:#dce2ea;--code:#eef2f7}
+@media(prefers-color-scheme:dark){:root{--bg:#0f141b;--paper:#171d26;--text:#e7edf5;--line:#303947;--code:#222b36}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:16px/1.75 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}
+article{max-width:920px;margin:36px auto;padding:42px 52px;background:var(--paper);border:1px solid var(--line);border-radius:16px;box-shadow:0 12px 36px rgba(20,35,55,.08)}
+h1{font-size:2rem;line-height:1.3;margin:0 0 1.2rem}h2{font-size:1.4rem;margin:2.1rem 0 .65rem;border-bottom:1px solid var(--line);padding-bottom:.35rem}h3{font-size:1.12rem;margin:1.5rem 0 .45rem}
+p{margin:.65rem 0}ul,ol{padding-left:1.5rem}li{margin:.25rem 0}code{background:var(--code);padding:.12rem .32rem;border-radius:5px;font:14px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace}pre{overflow:auto;background:var(--code);padding:16px 18px;border-radius:10px}pre code{padding:0}table{border-collapse:collapse;width:100%;font-size:.94rem}.table-wrap{overflow:auto}th,td{border:1px solid var(--line);padding:9px 11px;text-align:left;vertical-align:top}th{background:var(--code)}
+@media(max-width:680px){article{margin:0;padding:25px 20px;border:0;border-radius:0}h1{font-size:1.65rem}}
+</style>
+</head>
+<body>
+<article>
+<h1>远程访问总控台</h1>
+<p>远程访问分三层：先让同一局域网内的设备能连接，再决定是否通过反向代理或隧道暴露到公网，最后检查密码与 HTTPS。</p>
+<h2>第一步：在局域网内访问</h2>
+<p>先设置总控台密码：</p>
+<pre><code>printf '%s' '&lt;强密码&gt;' | kunpeng auth set-password</code></pre>
+<p>然后监听所有本机网卡：</p>
+<pre><code>kunpeng serve 7777 --host 0.0.0.0</code></pre>
+<p>在服务器上查到局域网 IP 后，同一 Wi-Fi 或同一内网的设备可打开：</p>
+<pre><code>http://&lt;本机局域网IP&gt;:7777</code></pre>
+<p>如果页面打不开，依次检查进程是否仍在运行、端口是否正确、两台设备是否在同一网络，以及系统防火墙是否允许该端口。</p>
+<h2>第二步：通过反向代理或隧道访问</h2>
+<p>需要从外网访问时，推荐让反向代理或隧道服务连接本机总控台，而不是直接把总控台端口暴露到互联网。</p>
+<p>反向代理应把一个 HTTPS 地址转发到 <code>http://127.0.0.1:7777</code>。隧道产品也应把同一回环地址作为本地上游。</p>
+<p>具体产品的安装、登录、域名和启动命令各不相同，请以所选反向代理或隧道工具的当前文档为准。不要照搬别人的域名、隧道账号或机器配置。</p>
+<p>如果代理或隧道运行在另一台主机上，才需要让它通过内网访问 <code>0.0.0.0</code> 绑定的端口，并同时收紧防火墙来源范围。</p>
+<h2>公网访问的安全前提</h2>
+<ul>
+<li>必须先运行 <code>kunpeng auth set-password</code>，确认未登录访问会被要求认证。</li>
+<li>公网入口必须使用 HTTPS，避免密码和会话信息在传输中暴露。</li>
+<li>不要提交认证文件、隧道凭证、证书私钥、token 或真实密码。</li>
+<li>不要使用 <code>KUNPENG_ALLOW_INSECURE=1</code> 暴露公网服务。</li>
+<li>优先使用只需出站连接的隧道，或在防火墙中只开放必要入口。</li>
+</ul>
+<p>改密码后应重启 <code>kunpeng serve</code> 进程，再用无痕窗口验证登录流程。</p>
+<h2>手机端使用</h2>
+<p>手机与服务器在同一局域网时，可直接打开局域网地址。外出时则使用反向代理或隧道提供的 HTTPS 地址。</p>
+<p>可以把总控台地址加入手机主屏幕，便于查看收件箱和处理人工门。手机浏览器必须允许 Cookie，否则登录状态无法保持。</p>
+<p>若手机能打开登录页却无法进入，先检查密码是否更新、代理是否转发 Cookie 和重定向、手机时间是否准确。</p>
+<h2>故障定位顺序</h2>
+<ol>
+<li>在服务器本机打开 <code>http://localhost:7777</code>，确认总控台本身正常。</li>
+<li>在同一局域网设备打开 <code>http://&lt;本机局域网IP&gt;:7777</code>，确认绑定和防火墙正常。</li>
+<li>检查代理或隧道的上游是否指向正确端口。</li>
+<li>检查公网域名的 DNS、证书和 HTTPS 状态。</li>
+<li>用未登录的浏览器验证认证确实生效，再开始日常使用。</li>
+</ol>
+<p>把问题按这几层拆开，通常能快速判断故障发生在总控台、局域网还是公网入口。</p>
+</article>
+</body>
+</html>

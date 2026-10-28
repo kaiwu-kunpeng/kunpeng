@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>鲲鹏 · 下一步产品文档（2026-06-18）</title>
+<style>
+  :root{
+    --ink:#1a1d21; --ink2:#43474d; --ink3:#71767e; --line:#e7e9ee;
+    --bg:#ffffff; --bg2:#fafbfc;
+    --blue:#2f6df0; --blue-bg:#eef3fe; --green:#1f9d6b; --green-bg:#ecf8f2;
+    --amber:#d98410; --amber-bg:#fef6ea; --violet:#7b54d6; --violet-bg:#f3eefb;
+    --rose:#d6446b; --rose-bg:#fdeef3; --gray:#6b7280; --gray-bg:#f4f5f7; --radius:16px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;color:var(--ink);background:var(--bg2);line-height:1.62;-webkit-font-smoothing:antialiased;}
+  .wrap{max-width:1040px;margin:0 auto;padding:0 28px 110px;}
+  .cover{padding:54px 0 30px;border-bottom:1px solid var(--line);}
+  .cover .badge{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink3);font-weight:600;}
+  .cover h1{font-size:36px;line-height:1.2;margin:14px 0 12px;letter-spacing:-.01em;}
+  .cover .sub{font-size:18px;color:var(--ink2);}
+  .cover .row{margin-top:22px;display:flex;gap:26px;flex-wrap:wrap;font-size:13px;color:var(--ink3);} .cover .row b{color:var(--ink2);}
+  section{margin-top:46px;}
+  .sec-head{display:flex;align-items:baseline;gap:12px;margin-bottom:6px;}
+  .sec-num{font-size:13px;font-weight:700;color:#fff;background:var(--ink);padding:3px 11px;border-radius:999px;}
+  h2{font-size:24px;letter-spacing:-.01em;}
+  .purpose{color:var(--ink3);font-size:14px;margin:2px 0 16px;}
+  .card{background:var(--bg);border:1px solid var(--line);border-radius:var(--radius);padding:22px;}
+  .grid{display:grid;gap:14px;} .g2{grid-template-columns:1fr 1fr;} .g3{grid-template-columns:1fr 1fr 1fr;}
+  @media(max-width:860px){.g2,.g3{grid-template-columns:1fr;}}
+  .pill{display:inline-block;font-size:11px;font-weight:600;padding:2px 9px;border-radius:999px;}
+  .p-blue{background:var(--blue-bg);color:var(--blue);} .p-green{background:var(--green-bg);color:var(--green);}
+  .p-amber{background:var(--amber-bg);color:var(--amber);} .p-rose{background:var(--rose-bg);color:var(--rose);} .p-gray{background:var(--gray-bg);color:var(--gray);}
+  table{width:100%;border-collapse:collapse;font-size:13px;background:var(--bg);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;}
+  th{text-align:left;font-size:11px;letter-spacing:.03em;text-transform:uppercase;color:var(--ink3);background:var(--bg2);padding:10px 13px;border-bottom:1px solid var(--line);font-weight:700;}
+  td{padding:11px 13px;border-bottom:1px solid var(--line);color:var(--ink2);vertical-align:top;} tr:last-child td{border-bottom:none;} td b{color:var(--ink);}
+  .mat-ok{color:var(--green);font-weight:600;} .mat-mid{color:var(--amber);font-weight:600;} .mat-low{color:var(--rose);font-weight:600;}
+  .flow{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;}
+  .flow .f{background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:8px 12px;font-size:12px;font-weight:560;color:var(--ink2);}
+  .flow .f b{color:var(--blue);}
+  ul.tight{margin:6px 0 0 18px;} ul.tight li{font-size:13.5px;color:var(--ink2);margin:6px 0;line-height:1.5;} ul.tight li b{color:var(--ink);}
+  .accbox{background:#14181d;border-radius:var(--radius);padding:18px 22px;color:#e8eaed;margin-top:14px;}
+  .accbox .lab{font-size:12px;font-weight:700;color:#7fb0ff;letter-spacing:.06em;} .accbox .txt{font-size:15px;margin-top:6px;line-height:1.55;} .accbox b{color:#fff;}
+  .footer{margin-top:50px;padding-top:18px;border-top:1px solid var(--line);font-size:12px;color:var(--ink3);}
+  code{background:var(--gray-bg);padding:1px 6px;border-radius:5px;font-size:12.5px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="cover">
+    <div class="badge">产品文档 · 下一步</div>
+    <h1>鲲鹏 · 下一步产品文档</h1>
+    <div class="sub">现在<b>已经有什么</b> + 下一步<b>具体建什么</b>（P0 7 天切片 → 30/60/90 增量），每步带验收</div>
+    <div class="row">
+      <span><b>主体：</b>鲲鹏 KUNPENG</span>
+      <span><b>日期：</b>2026-06-18</span>
+      <span><b>配套：</b>产品战略 V4（同日）</span>
+      <span><b>原则：</b>只描述已实现 + 紧邻下一步，不把远期愿景当已实现能力</span>
+    </div>
+  </div>
+
+  <!-- 1 -->
+  <section>
+    <div class="sec-head"><span class="sec-num">01</span><h2>产品摘要（现在的鲲鹏）</h2></div>
+    <div class="purpose">鲲鹏当前不是单纯 coding agent，而是一个<b>本地研发编排器</b>：把需求、执行、验证、人工门、发布、经验沉淀串成流程。</div>
+    <div class="grid g3">
+      <div class="card"><span class="pill p-gray">产品类别</span><div style="margin-top:8px;font-size:13.5px;line-height:1.55;"><b>本地 AI 研发控制塔（雏形）</b>。用 CLI 启动任务，用 cockpit 观察确认，用 artifact 记录产物，用 guard/evidence 证明结果。</div></div>
+      <div class="card"><span class="pill p-gray">核心价值</span><div style="margin-top:8px;font-size:13.5px;line-height:1.55;">把 agent 输出<b>变成可合并状态</b>。重点不是"生成代码"，而是从需求推进到验证通过、人类确认、可发布、可复盘。</div></div>
+      <div class="card"><span class="pill p-gray">当前阶段</span><div style="margin-top:8px;font-size:13.5px;line-height:1.55;">能跑的控制塔雏形——已有命令、artifact、worktree、guard、release、自进化提案、web cockpit；产品体验需收束成 P0 切片。</div></div>
+    </div>
+  </section>
+
+  <!-- 2 -->
+  <section>
+    <div class="sec-head"><span class="sec-num">02</span><h2>目标用户</h2></div>
+    <div class="purpose">当前最适合先服务个人开发者和一人多项目维护者。企业团队协作是后续扩展，不是 P0。</div>
+    <div class="card"><span class="pill p-blue">主用户 · 独立开发者 / Solo Founder</span>
+      <ul class="tight" style="margin-top:8px;">
+        <li>同时维护多个产品、网站、自动化脚本、工具库；已用 AI 编码工具，但<b>缺统一控制、验证和沉淀</b>。</li>
+        <li>关心本地数据、账号登录态、成本、回滚。</li>
+        <li><b>核心痛点：</b>AI 做了很多，但我仍要收尾——不知道 agent 真做到哪步、不知道测试/lint/构建/发布是否真过、每次都要重复解释项目背景、失败经验没自动变成下次的护栏。</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 3 -->
+  <section>
+    <div class="sec-head"><span class="sec-num">03</span><h2>当前已有能力</h2></div>
+    <div class="purpose">以下来自当前仓库代码与文档，不是未来想象（本阶段 600+ 测试全绿、claude/codex 双后端 verified）。</div>
+    <table>
+      <thead><tr><th style="width:14%">模块</th><th style="width:40%">已有能力</th><th style="width:30%">用户价值</th><th style="width:16%">成熟度</th></tr></thead>
+      <tbody>
+        <tr><td><b>CLI</b></td><td><code>run/register/projects/onboard/compile/guard/evolve/release/serve</code> 等</td><td>命令行登记、接管、跑任务、体检、发布、启动总控台</td><td class="mat-mid">可用，需更强引导</td></tr>
+        <tr><td><b>Artifact</b></td><td>标准产物：spec/plan/task/review/experience/proposal/release</td><td>流程不靠聊天记忆，重要状态落盘可追踪</td><td class="mat-ok">基础成熟</td></tr>
+        <tr><td><b>Flow State</b></td><td>记录阶段、人工门、运行状态，供 dashboard 读</td><td>cockpit 反映真实执行状态</td><td class="mat-mid">向真数据全视图硬化中</td></tr>
+        <tr><td><b>Worktree 隔离</b></td><td>按 flow 分配独立 git worktree，守单写者</td><td>减少并行冲突，保护主工作区</td><td class="mat-ok">核心已在</td></tr>
+        <tr><td><b>Agent Runner</b></td><td>登录态 CLI 后端，claude/codex 可切换</td><td>不必暴露 API key，用现有 agent 工具</td><td class="mat-mid">可用，仍依赖供应商 CLI</td></tr>
+        <tr><td><b>Guard</b></td><td>只读体检：typecheck/lint/TODO 扫描，存 review</td><td>确定性质量扫描，减少"看起来完成"</td><td class="mat-mid">需接更真实测试信号</td></tr>
+        <tr><td><b>Release</b></td><td>跑 build，成功记 release ready、失败记 rolled-back</td><td>发布前验证纳入闭环</td><td class="mat-mid">基础可用</td></tr>
+        <tr><td><b>Self-evolution</b></td><td>消费 experience 生成 proposal，仅改 conventions、拒 core、需人工门</td><td>失败经验变改进建议，不自动越权</td><td class="mat-low">缺公开可复现曲线</td></tr>
+        <tr><td><b>Web Cockpit</b></td><td>多项目状态、红绿灯、agent 阶段、ETA、卡点、人工门操作</td><td>不只看 CLI，可在页面观察确认</td><td class="mat-mid">雏形，需强化真实任务视图 + review inbox</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- 4 -->
+  <section>
+    <div class="sec-head"><span class="sec-num">04</span><h2>核心对象模型</h2></div>
+    <div class="purpose">产品体验应围绕这些对象组织，而不是暴露过多内部实现。</div>
+    <table>
+      <thead><tr><th style="width:16%">对象</th><th style="width:24%">含义</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td><b>Project</b></td><td>被鲲鹏管理的项目</td><td>路径、展示名、自描述、健康状态、活跃 flow、人工门</td></tr>
+        <tr><td><b>Flow</b></td><td>一次需求执行</td><td>从需求 → 计划 → 实现 → 验证 → 人工门 → 合并/回滚</td></tr>
+        <tr><td><b>Artifact</b></td><td>流程真相源</td><td>spec/plan/task/review/experience/proposal/release，可查看可引用</td></tr>
+        <tr><td><b>Evidence</b></td><td>完成证明</td><td>测试/lint/typecheck/build/diff/人审，证明不是口头完成</td></tr>
+        <tr><td><b>Gate</b></td><td>人工门</td><td>高风险动作、人审合并、自进化应用、发布动作需人类确认</td></tr>
+        <tr><td><b>Experience</b></td><td>经验沉淀</td><td>失败原因、重复模式、修复方式、防复发建议——自我进化的原料</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- 5 -->
+  <section>
+    <div class="sec-head"><span class="sec-num">05</span><h2>当前缺口</h2></div>
+    <div class="purpose">这些缺口是让鲲鹏从"能跑的工程系统"变成"用户可理解产品"的关键。</div>
+    <div class="grid g2">
+      <div class="card" style="border-color:#f6e3c2;background:var(--amber-bg);"><span class="pill p-amber">缺口 1 · 产品入口偏工程化</span><div style="margin-top:8px;font-size:13px;line-height:1.55;">命令很多，但用户每天真正需要的是"<b>现在哪些任务需要我处理</b>"。cockpit 要把命令能力翻译成工作台语言。</div></div>
+      <div class="card" style="border-color:#f6e3c2;background:var(--amber-bg);"><span class="pill p-amber">缺口 2 · 验证证据待产品化</span><div style="margin-top:8px;font-size:13px;line-height:1.55;">用户需要在页面看懂任务<b>为什么可以合并</b>，而不是只看到命令退出码。</div></div>
+      <div class="card" style="border-color:#f6e3c2;background:var(--amber-bg);"><span class="pill p-amber">缺口 3 · 研发记忆输入层未实现</span><div style="margin-top:8px;font-size:13px;line-height:1.55;">现有 knowledge 更偏 experience，不支持文章/PDF/聊天/竞品/报警等输入。</div></div>
+      <div class="card" style="border-color:#f6e3c2;background:var(--amber-bg);"><span class="pill p-amber">缺口 4 · 自我进化缺效果曲线</span><div style="margin-top:8px;font-size:13px;line-height:1.55;">已有 proposal 和证据闸基础，但需 eval-runner 证明改进前后<b>真的更好</b>。</div></div>
+    </div>
+  </section>
+
+  <!-- 6 -->
+  <section>
+    <div class="sec-head"><span class="sec-num">06</span><h2>下一步 · P0 产品需求（7 天切片）</h2></div>
+    <div class="purpose">不扩大战略，而是做一个<b>可演示、可验证、可复盘</b>的 P0 产品切片。围绕一条流程，而非命令列表。</div>
+    <div class="flow">
+      <div class="f"><b>01</b> 登记项目</div><div class="f"><b>02</b> 接管上下文</div><div class="f"><b>03</b> 提交需求</div>
+      <div class="f"><b>04</b> 隔离执行</div><div class="f"><b>05</b> 验证证据</div><div class="f"><b>06</b> 人工确认</div><div class="f"><b>07</b> 发布沉淀</div>
+    </div>
+    <table style="margin-top:14px;">
+      <thead><tr><th style="width:20%">需求</th><th style="width:42%">说明</th><th style="width:38%">验收标准</th></tr></thead>
+      <tbody>
+        <tr><td><b>真实 Flow 工作台</b></td><td>首页显示真实运行中的 flow、阶段、状态、卡点、ETA</td><td>启动一条真实任务后，cockpit 能<b>实时反映阶段变化</b></td></tr>
+        <tr><td><b>Review Inbox</b></td><td>统一展示等待人类确认的合并、发布、proposal</td><td>用户在一个页面看懂"<b>为什么需要确认</b>"和"确认后发生什么"</td></tr>
+        <tr><td><b>Evidence View</b></td><td>展示测试、lint、typecheck、build、diff 和失败摘要</td><td>每个完成任务能打开<b>证据详情</b>；失败任务有归档原因</td></tr>
+        <tr><td><b>Experience 自动沉淀</b></td><td>失败和人审反馈能生成 experience 草稿</td><td>至少一种失败能<b>自动转成可读 experience artifact</b></td></tr>
+        <tr><td><b>Proposal / Skill 草稿</b></td><td>从 experience 生成改进建议或 skill 草稿，但不自动应用</td><td>用户能在人工门里<b>批准或拒绝</b>提案</td></tr>
+      </tbody>
+    </table>
+    <div class="accbox">
+      <div class="lab">★ P0 一句话验收</div>
+      <div class="txt">拿一个真实项目跑一条真实需求，鲲鹏能在 cockpit 里展示<b>从需求、执行、验证、人审到经验沉淀的完整链路</b>，并且用户<b>能判断它是否可以合并</b>。</div>
+    </div>
+  </section>
+
+  <!-- 7 -->
+  <section>
+    <div class="sec-head"><span class="sec-num">07</span><h2>P0 之后 · 30 / 60 / 90 天增量</h2></div>
+    <div class="purpose">每步都让"可验证控制塔"更真实，不扩战线。与战略 V4 路线图对齐。</div>
+    <div class="grid g3">
+      <div class="card"><span class="pill p-blue">30 天 · 闭环硬化</span><div style="margin-top:8px;font-size:13px;line-height:1.55;">补 review inbox、可编辑 plan 门、验证证据详情、失败复盘、release/rollback 视图。<br><b>验收：</b>声明完成=真实通过率 ≥ 80%；失败都有可归档原因。</div></div>
+      <div class="card"><span class="pill p-blue">60 天 · Knowledge Inbox v1</span><div style="margin-top:8px;font-size:13px;line-height:1.55;"><code>kunpeng capture</code>；URL/文本/文件/截图/聊天片段捕获；自动摘要/标签/项目关联/带引用检索；人工 promote。<br><b>验收：</b>五个高频场景至少跑通三个。</div></div>
+      <div class="card"><span class="pill p-blue">90 天 · 自我进化曲线</span><div style="margin-top:8px;font-size:13px;line-height:1.55;">eval-runner 回放 holdout，比较提案前后质量与成本，形成可复现报告。<br><b>验收：</b>至少一条自我增强曲线可被本地重跑验证。</div></div>
+    </div>
+  </section>
+
+  <!-- 8 -->
+  <section>
+    <div class="sec-head"><span class="sec-num">08</span><h2>Cockpit 页面需求</h2></div>
+    <div class="purpose">cockpit 已有基础（多项目侧栏、运行真相、自进化页、全交互按钮、a11y 已修），下一步让它成为用户<b>每天打开的工作台</b>。</div>
+    <div class="grid g2">
+      <div class="card"><span class="pill p-blue">首页 · 跨项目工作台</span><ul class="tight" style="margin-top:8px;"><li>全部项目健康状态</li><li>正在运行 / 失败 / 等待人审 / 可发布的任务</li><li>最近产生的 experience 和 proposal</li><li><b>突出"现在需要我做什么"</b></li></ul></div>
+      <div class="card"><span class="pill p-blue">项目页 · 项目内研发视图</span><ul class="tight" style="margin-top:8px;"><li>开发流：flow 阶段、日志、证据、分支</li><li>方案：plan、可编辑计划门、启动 run</li><li>产品：DEFINE 阶段和需求澄清（访谈已接通）</li><li>设计：design preview / codegen / visual evidence</li></ul></div>
+      <div class="card"><span class="pill p-blue">Review Inbox · 统一人审入口</span><ul class="tight" style="margin-top:8px;"><li>合并确认 · 发布确认</li><li>proposal 批准</li><li>高风险 connector 动作确认</li></ul></div>
+      <div class="card"><span class="pill p-blue">Evidence View · 验证证据详情</span><ul class="tight" style="margin-top:8px;"><li>测试命令和输出摘要</li><li>lint / typecheck / build 结果</li><li>diff 风险提示</li><li>失败原因和下一步建议</li></ul></div>
+    </div>
+  </section>
+
+  <!-- 9 -->
+  <section>
+    <div class="sec-head"><span class="sec-num">09</span><h2>与战略的关系 · 本地依据</h2></div>
+    <div class="card">
+      <ul class="tight">
+        <li><b>与战略 V4 的关系：</b>本文档是战略 V4 的<b>执行落地面</b>——战略讲"为什么往本地控制塔 + 研发记忆 + 自我进化（待证明）走"，本文档讲"<b>现在有什么 + 下一步具体建什么</b>（P0 7 天切片 + 30/60/90）"。两份并行：一份方向、一份执行，都为后续查验。</li>
+        <li><b>反幻觉原则：</b>本文档只描述已实现能力 + 紧邻下一步，<b>不把远期愿景（数字研发团队 OS）当成已实现</b>。自我进化标为"缺效果曲线"，不夸大。</li>
+        <li><b>本地依据：</b><code>orchestrator/README.md</code>（CLI/server/artifact/flowstate 能力）·<code>SPEC.md</code>（产物即真相/单写者/人类门点/里程碑）·<code>docs/product/2026-06-17-current-kunpeng-product-doc.html</code>（当前能力清点）·<code>docs/strategy/2026-06-18-product-strategy-v4.html</code>（配套战略）。</li>
+        <li><b>时效戳：</b>2026-06-18。</li>
+      </ul>
+    </div>
+  </section>
+
+  <div class="footer">鲲鹏 · 下一步产品文档 | 产品摘要 → 目标用户 → 已有能力 → 对象模型 → 当前缺口 → P0 7天切片(验收) → 30/60/90 增量 → cockpit 页面需求 → 战略关系/依据 | 2026-06-18</div>
+
+</div>
+</body>
+</html>

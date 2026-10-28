@@ -1,0 +1,30 @@
+# 安装后运行：
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now kunpeng-serve.service
+# 请把 ExecStart 的 --repo 路径改成目标仓绝对路径。
+# KUNPENG_STATE 在下方注入；也可由 /etc/kunpeng/kunpeng.env 覆盖其他变量。
+
+[Unit]
+Description=Kunpeng self-hosted cockpit
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=simple
+User=kunpeng
+Group=kunpeng
+WorkingDirectory=/opt/kunpeng/orchestrator
+Environment=NODE_ENV=production
+Environment=KUNPENG_STATE=/var/lib/kunpeng
+Environment=KUNPENG_HOST=127.0.0.1
+EnvironmentFile=-/etc/kunpeng/kunpeng.env
+ExecStart=/usr/bin/node /opt/kunpeng/orchestrator/dist/cli.js serve 7777 --repo /srv/target-repo
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=30
+StateDirectory=kunpeng
+PrivateTmp=true
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target

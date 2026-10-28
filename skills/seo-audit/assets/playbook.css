@@ -1,0 +1,20 @@
+
+/* 方案执行版：默认主题 teal-playbook；只用 var(--*) 令牌 */
+.pb-legend{display:flex;flex-wrap:wrap;gap:16px;font-size:12px;color:var(--mu);margin:8px 0}
+.pb-legend i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:6px;vertical-align:-2px}
+.pb-legend i.dia{width:9px;height:9px;border-radius:0;background:var(--ink);transform:rotate(45deg);margin-right:8px}
+.pb-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--ln);border-radius:var(--radius);background:var(--sf);padding:8px}
+.pb-scroll figure.chart{margin:0}
+.pb-gantt{width:100%;height:auto;display:block}
+.pb-dot{display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--ac)}
+table.pb-raci td{text-align:center}table.pb-raci td:nth-child(1),table.pb-raci td:nth-child(2){text-align:left}
+table.pb-raci th{text-align:center}table.pb-raci th:nth-child(1),table.pb-raci th:nth-child(2){text-align:left}
+.pb-gates .it{padding-bottom:16px}.pb-gates .it b{color:var(--tx)}
+.pb-crit{margin-top:4px;font-size:13px;color:var(--tx2);background:var(--sf2);border-left:3px solid var(--ac3);padding:6px 10px}
+@media screen and (max-width:820px){.pb-scroll{padding:4px}table.pb-raci{min-width:640px}}
+@media print{
+ .ed-playbook .eyebrow{break-before:page}
+ .pb-scroll{overflow:visible;border:0;padding:0}
+ .pb-gantt{min-width:0!important}
+ .pb-crit,.pb-gates .it{break-inside:avoid}
+}

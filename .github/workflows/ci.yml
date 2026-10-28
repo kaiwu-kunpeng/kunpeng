@@ -1,0 +1,41 @@
+name: CI
+
+# 鲲鹏 工程闸门：typecheck + lint + test 三道全过才算绿。
+# 仓库尚未推送 remote 时该 workflow 不生效；接上 remote 后自动激活。
+on:
+  push:
+  pull_request:
+
+jobs:
+  orchestrator:
+    name: orchestrator (Node 20)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: orchestrator
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: orchestrator/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
+
+      # 分阶段：先跑快的 unit（纯函数，秒级），再跑慢的 integration（真 git/子进程/exec）。
+      # 快测先失败 → 更快反馈；integration 标记为 *.integration.test.ts。
+      - name: Test (unit)
+        run: npm run test:unit
+
+      - name: Test (integration)
+        run: npm run test:integration

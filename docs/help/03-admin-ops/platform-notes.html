@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>平台说明与限制</title>
+<style>
+:root{color-scheme:light dark;--bg:#f6f8fb;--paper:#fff;--text:#172033;--line:#dce2ea;--code:#eef2f7}
+@media(prefers-color-scheme:dark){:root{--bg:#0f141b;--paper:#171d26;--text:#e7edf5;--line:#303947;--code:#222b36}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:16px/1.75 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}
+article{max-width:920px;margin:36px auto;padding:42px 52px;background:var(--paper);border:1px solid var(--line);border-radius:16px;box-shadow:0 12px 36px rgba(20,35,55,.08)}
+h1{font-size:2rem;line-height:1.3;margin:0 0 1.2rem}h2{font-size:1.4rem;margin:2.1rem 0 .65rem;border-bottom:1px solid var(--line);padding-bottom:.35rem}h3{font-size:1.12rem;margin:1.5rem 0 .45rem}
+p{margin:.65rem 0}ul,ol{padding-left:1.5rem}li{margin:.25rem 0}code{background:var(--code);padding:.12rem .32rem;border-radius:5px;font:14px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace}pre{overflow:auto;background:var(--code);padding:16px 18px;border-radius:10px}pre code{padding:0}table{border-collapse:collapse;width:100%;font-size:.94rem}.table-wrap{overflow:auto}th,td{border:1px solid var(--line);padding:9px 11px;text-align:left;vertical-align:top}th{background:var(--code)}
+@media(max-width:680px){article{margin:0;padding:25px 20px;border:0;border-radius:0}h1{font-size:1.65rem}}
+</style>
+</head>
+<body>
+<article>
+<h1>平台说明与限制</h1>
+<p>鲲鹏以 macOS 作为开发和运行的主平台。核心 CLI 在其它平台可能可以运行，但部分运维能力依赖 macOS 系统组件。</p>
+<h2>Node.js 要求</h2>
+<p>运行鲲鹏需要 Node.js 20 或更高版本。先确认：</p>
+<pre><code>node --version</code></pre>
+<p>版本过低时，应先升级 Node，再安装依赖和启动总控台。</p>
+<h2>macOS</h2>
+<p>macOS 是一等公民，日常开发、总控台、终端会话以及后台定时调度都以它为主要验证平台。</p>
+<p><code>scout</code>、<code>maintain</code>、<code>patrol</code>、<code>ops</code> 和 <code>flywheel</code> 的 <code>--install</code> 会生成并安装 launchd 调度配置。对应的 <code>--uninstall</code> 用于移除该调度。</p>
+<p>launchd 启动环境比交互式 shell 精简。后台任务需要的 PATH、登录态目录和鲲鹏环境变量，应由调度配置显式提供，不能假设 shell profile 会自动加载。</p>
+<h2>Linux 与 Windows</h2>
+<p>Linux 和 Windows 目前不能使用上述命令的 <code>--install</code> 后台调度能力，因为该实现依赖 launchd 和 macOS 的 LaunchAgents 目录。</p>
+<p>替代方案是先以前台常驻方式运行需要持续工作的命令，再用操作系统自己的调度器定时调用对应 CLI 子命令。</p>
+<p>Linux 可用 cron 或 systemd timer 定时调用 <code>kunpeng scout</code>、<code>kunpeng maintain</code>、<code>kunpeng patrol</code>、<code>kunpeng ops</code> 或 <code>kunpeng flywheel</code>。</p>
+<p>Windows 可使用任务计划程序调用相应命令。具体参数和服务账号环境以当前 CLI 帮助及操作系统文档为准。</p>
+<p>外部调度时务必设置正确的工作目录、PATH、<code>KUNPENG_REPO</code>、后端登录态目录和必要环境变量，并把 stdout、stderr 留到可排查的日志中。</p>
+<h2>tmux 依赖</h2>
+<p>总控台内的持久终端功能依赖 tmux。未安装 tmux 时，总控台的终端会话复用和恢复能力不可用。</p>
+<p>macOS 常见安装方式是使用系统包管理器安装 tmux；Linux 则使用发行版包管理器。安装后重启 <code>kunpeng serve</code>，让总控台重新探测它。</p>
+<p>tmux 只影响终端相关功能，不代表整个总控台和其它 CLI 都无法运行。</p>
+<h2>上线前检查</h2>
+<ul>
+<li><code>node --version</code> 显示 20 或更高版本。</li>
+<li>macOS 后台任务能在 <code>launchd</code> 中看到并产生预期日志。</li>
+<li>Linux/Windows 已由外部调度器接管周期任务，没有调用不受支持的 <code>--install</code>。</li>
+<li>需要总控台终端时，<code>tmux</code> 已安装并能从服务进程的 PATH 中找到。</li>
+<li>涉及后端调用时，服务账号拥有正确的 Claude 或 Codex 登录态。</li>
+</ul>
+<p>遇到平台差异时，先把命令以前台方式运行一次，确认 CLI 本身正常，再排查调度器、权限和环境变量。</p>
+</article>
+</body>
+</html>

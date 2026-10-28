@@ -1,0 +1,445 @@
+{
+  "schema": "kunpeng-design-presets/v1",
+  "source": {
+    "repo": "nexu-io/open-design",
+    "commit": "36f57d5f9c44d39c869f3d6b30a55a279ab0c1ff",
+    "license": "Apache-2.0"
+  },
+  "count": 62,
+  "presets": [
+    {
+      "id": "agentic",
+      "name": "Agentic",
+      "category": "Themed & Unique",
+      "description": "Bundled Open Design package for Agentic, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+      "hasZh": false
+    },
+    {
+      "id": "application",
+      "name": "Application",
+      "category": "Professional & Corporate",
+      "description": "Bundled Open Design package for Application, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+      "hasZh": false
+    },
+    {
+      "id": "artistic",
+      "name": "Artistic",
+      "category": "Creative & Artistic",
+      "description": "Bundled Open Design package for Artistic, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+      "hasZh": false
+    },
+    {
+      "id": "atelier-zero",
+      "name": "Atelier Zero",
+      "category": "Editorial · Studio",
+      "description": "Bundled Open Design package for Atelier Zero, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+      "hasZh": false
+    },
+    {
+      "id": "bento",
+      "name": "Bento",
+      "category": "Layout & Structure",
+      "description": "Bundled Open Design package for Bento, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+      "hasZh": false
+    },
+    {
+      "id": "bold",
+      "name": "Bold",
+      "category": "Bold & Expressive",
+      "description": "Bundled Open Design package for Bold, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+      "hasZh": false
+    },
+    {
+      "id": "brutalism",
+      "name": "Brutalism",
+      "category": "Bold & Expressive",
+      "description": "Bundled Open Design package for Brutalism, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+      "hasZh": false
+    },
+    {
+      "id": "cafe",
+      "name": "Cafe",
+      "category": "Creative & Artistic",
+      "description": "Bundled Open Design package for Cafe, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+      "hasZh": false
+    },
+    {
+      "id": "claymorphism",
+      "name": "Claymorphism",
+      "category": "Morphism & Effects",
+      "description": "Bundled Open Design package for Claymorphism, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+      "hasZh": false
+    },
+    {
+      "id": "clean",
+      "name": "Clean",
+      "category": "Modern & Minimal",
+      "description": "Bundled Open Design package for Clean, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+      "hasZh": false
+    },
+    {
+      "id": "colorful",
+      "name": "Colorful",
+      "category": "Bold & Expressive",
+      "description": "Bundled Open Design package for Colorful, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+      "hasZh": false
+    },
+    {
+      "id": "contemporary",
+      "name": "Contemporary",
+      "category": "Modern & Minimal",
+      "description": "Bundled Open Design package for Contemporary, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+      "hasZh": false
+    },
+    {
+      "id": "corporate",
+      "name": "Corporate",
+      "category": "Professional & Corporate",
+      "description": "Bundled Open Design package for Corporate, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+      "hasZh": false
+    },
+    {
+      "id": "cosmic",
+      "name": "Cosmic",
+      "category": "Creative & Artistic",
+      "description": "Bundled Open Design package for Cosmic, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+      "hasZh": false
+    },
+    {
+      "id": "creative",
+      "name": "Creative",
+      "category": "Creative & Artistic",
+      "description": "Bundled Open Design package for Creative, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+      "hasZh": false
+    },
+    {
+      "id": "dashboard",
+      "name": "Dashboard",
+      "category": "Professional & Corporate",
+      "description": "Bundled Open Design package for Dashboard, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+      "hasZh": false
+    },
+    {
+      "id": "default",
+      "name": "Neutral Modern",
+      "category": "Starter",
+      "description": "Bundled Open Design package for Neutral Modern, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+      "hasZh": false
+    },
+    {
+      "id": "dithered",
+      "name": "Dithered",
+      "category": "Retro & Nostalgic",
+      "description": "Bundled Open Design package for Dithered, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+      "hasZh": false
+    },
+    {
+      "id": "doodle",
+      "name": "Doodle",
+      "category": "Creative & Artistic",
+      "description": "Bundled Open Design package for Doodle, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+      "hasZh": false
+    },
+    {
+      "id": "dramatic",
+      "name": "Dramatic",
+      "category": "Bold & Expressive",
+      "description": "Bundled Open Design package for Dramatic, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+      "hasZh": false
+    },
+    {
+      "id": "editorial",
+      "name": "Editorial",
+      "category": "Creative & Artistic",
+      "description": "Bundled Open Design package for Editorial, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+      "hasZh": false
+    },
+    {
+      "id": "elegant",
+      "name": "Elegant",
+      "category": "Professional & Corporate",
+      "description": "Bundled Open Design package for Elegant, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+      "hasZh": false
+    },
+    {
+      "id": "energetic",
+      "name": "Energetic",
+      "category": "Bold & Expressive",
+      "description": "Bundled Open Design package for Energetic, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+      "hasZh": false
+    },
+    {
+      "id": "enterprise",
+      "name": "Enterprise",
+      "category": "Professional & Corporate",
+      "description": "Bundled Open Design package for Enterprise, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+      "hasZh": false
+    },
+    {
+      "id": "expressive",
+      "name": "Expressive",
+      "category": "Bold & Expressive",
+      "description": "Bundled Open Design package for Expressive, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+      "hasZh": false
+    },
+    {
+      "id": "fantasy",
+      "name": "Fantasy",
+      "category": "Creative & Artistic",
+      "description": "Bundled Open Design package for Fantasy, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+      "hasZh": false
+    },
+    {
+      "id": "flat",
+      "name": "Flat",
+      "category": "Modern & Minimal",
+      "description": "Bundled Open Design package for Flat, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+      "hasZh": false
+    },
+    {
+      "id": "friendly",
+      "name": "Friendly",
+      "category": "Creative & Artistic",
+      "description": "Bundled Open Design package for Friendly, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+      "hasZh": false
+    },
+    {
+      "id": "futuristic",
+      "name": "Futuristic",
+      "category": "Themed & Unique",
+      "description": "Bundled Open Design package for Futuristic, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+      "hasZh": false
+    },
+    {
+      "id": "glassmorphism",
+      "name": "Glassmorphism",
+      "category": "Morphism & Effects",
+      "description": "Bundled Open Design package for Glassmorphism, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+      "hasZh": false
+    },
+    {
+      "id": "gradient",
+      "name": "Gradient",
+      "category": "Morphism & Effects",
+      "description": "Bundled Open Design package for Gradient, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+      "hasZh": false
+    },
+    {
+      "id": "hud",
+      "name": "HUD Design System",
+      "category": "Themed & Unique",
+      "description": "Bundled Open Design package for HUD Design System, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+      "hasZh": false
+    },
+    {
+      "id": "kami",
+      "name": "kami (紙 / 纸)",
+      "category": "Editorial & Print",
+      "description": "Bundled Open Design package for kami (紙 / 纸), derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+      "hasZh": false
+    },
+    {
+      "id": "levels",
+      "name": "Levels",
+      "category": "Layout & Structure",
+      "description": "Bundled Open Design package for Levels, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+      "hasZh": false
+    },
+    {
+      "id": "lingo",
+      "name": "Lingo",
+      "category": "Creative & Artistic",
+      "description": "Bundled Open Design package for Lingo, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+      "hasZh": false
+    },
+    {
+      "id": "luxury",
+      "name": "Luxury",
+      "category": "Professional & Corporate",
+      "description": "Bundled Open Design package for Luxury, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+      "hasZh": false
+    },
+    {
+      "id": "material",
+      "name": "Material",
+      "category": "Professional & Corporate",
+      "description": "Bundled Open Design package for Material, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+      "hasZh": false
+    },
+    {
+      "id": "minimal",
+      "name": "Minimal",
+      "category": "Modern & Minimal",
+      "description": "Bundled Open Design package for Minimal, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+      "hasZh": false
+    },
+    {
+      "id": "mission-control",
+      "name": "Mission Control Design System",
+      "category": "Developer Tools",
+      "description": "Bundled Open Design package for Mission Control Design System, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+      "hasZh": false
+    },
+    {
+      "id": "modern",
+      "name": "Modern",
+      "category": "Modern & Minimal",
+      "description": "Bundled Open Design package for Modern, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+      "hasZh": false
+    },
+    {
+      "id": "mono",
+      "name": "Mono",
+      "category": "Modern & Minimal",
+      "description": "Bundled Open Design package for Mono, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+      "hasZh": false
+    },
+    {
+      "id": "neobrutalism",
+      "name": "Neobrutalism",
+      "category": "Bold & Expressive",
+      "description": "Bundled Open Design package for Neobrutalism, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+      "hasZh": false
+    },
+    {
+      "id": "neon",
+      "name": "Neon",
+      "category": "Morphism & Effects",
+      "description": "Bundled Open Design package for Neon, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+      "hasZh": false
+    },
+    {
+      "id": "neumorphism",
+      "name": "Neumorphism",
+      "category": "Morphism & Effects",
+      "description": "Bundled Open Design package for Neumorphism, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+      "hasZh": false
+    },
+    {
+      "id": "paper",
+      "name": "Paper",
+      "category": "Retro & Nostalgic",
+      "description": "Bundled Open Design package for Paper, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+      "hasZh": false
+    },
+    {
+      "id": "perspective",
+      "name": "Perspective",
+      "category": "Layout & Structure",
+      "description": "Bundled Open Design package for Perspective, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+      "hasZh": false
+    },
+    {
+      "id": "premium",
+      "name": "Premium",
+      "category": "Professional & Corporate",
+      "description": "Bundled Open Design package for Premium, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+      "hasZh": false
+    },
+    {
+      "id": "professional",
+      "name": "Professional",
+      "category": "Professional & Corporate",
+      "description": "Bundled Open Design package for Professional, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+      "hasZh": false
+    },
+    {
+      "id": "publication",
+      "name": "Publication",
+      "category": "Creative & Artistic",
+      "description": "Bundled Open Design package for Publication, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+      "hasZh": false
+    },
+    {
+      "id": "refined",
+      "name": "Refined",
+      "category": "Modern & Minimal",
+      "description": "Bundled Open Design package for Refined, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+      "hasZh": false
+    },
+    {
+      "id": "retro",
+      "name": "Retro",
+      "category": "Retro & Nostalgic",
+      "description": "Bundled Open Design package for Retro, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+      "hasZh": false
+    },
+    {
+      "id": "simple",
+      "name": "Simple",
+      "category": "Modern & Minimal",
+      "description": "Bundled Open Design package for Simple, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+      "hasZh": false
+    },
+    {
+      "id": "skeumorphism",
+      "name": "Skeumorphism",
+      "category": "Morphism & Effects",
+      "description": "Bundled Open Design package for Skeumorphism, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+      "hasZh": false
+    },
+    {
+      "id": "sleek",
+      "name": "Sleek",
+      "category": "Modern & Minimal",
+      "description": "Bundled Open Design package for Sleek, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+      "hasZh": false
+    },
+    {
+      "id": "spacious",
+      "name": "Spacious",
+      "category": "Layout & Structure",
+      "description": "Bundled Open Design package for Spacious, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+      "hasZh": false
+    },
+    {
+      "id": "storytelling",
+      "name": "Storytelling",
+      "category": "Creative & Artistic",
+      "description": "Bundled Open Design package for Storytelling, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+      "hasZh": false
+    },
+    {
+      "id": "totality-festival",
+      "name": "Totality Festival",
+      "category": "Themed & Unique",
+      "description": "Bundled Open Design package for Totality Festival, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+      "hasZh": false
+    },
+    {
+      "id": "trading-terminal",
+      "name": "Trading Terminal Design System",
+      "category": "Themed & Unique",
+      "description": "Bundled Open Design package for Trading Terminal Design System, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+      "hasZh": false
+    },
+    {
+      "id": "urdu",
+      "name": "Urdu Modern (Indus Script System)",
+      "category": "Editorial / Personal / Publication",
+      "description": "Bundled Open Design package for Urdu Modern (Indus Script System), derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+      "hasZh": false
+    },
+    {
+      "id": "vibrant",
+      "name": "Vibrant",
+      "category": "Bold & Expressive",
+      "description": "Bundled Open Design package for Vibrant, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+      "hasZh": false
+    },
+    {
+      "id": "vintage",
+      "name": "Vintage",
+      "category": "Retro & Nostalgic",
+      "description": "Bundled Open Design package for Vintage, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+      "hasZh": false
+    },
+    {
+      "id": "warm-editorial",
+      "name": "Warm Editorial",
+      "category": "Starter",
+      "description": "Bundled Open Design package for Warm Editorial, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+      "hasZh": false
+    }
+  ]
+}

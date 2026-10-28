@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>部署总控台</title>
+<style>
+:root{color-scheme:light dark;--bg:#f6f8fb;--paper:#fff;--text:#172033;--line:#dce2ea;--code:#eef2f7}
+@media(prefers-color-scheme:dark){:root{--bg:#0f141b;--paper:#171d26;--text:#e7edf5;--line:#303947;--code:#222b36}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:16px/1.75 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}
+article{max-width:920px;margin:36px auto;padding:42px 52px;background:var(--paper);border:1px solid var(--line);border-radius:16px;box-shadow:0 12px 36px rgba(20,35,55,.08)}
+h1{font-size:2rem;line-height:1.3;margin:0 0 1.2rem}h2{font-size:1.4rem;margin:2.1rem 0 .65rem;border-bottom:1px solid var(--line);padding-bottom:.35rem}h3{font-size:1.12rem;margin:1.5rem 0 .45rem}
+p{margin:.65rem 0}ul,ol{padding-left:1.5rem}li{margin:.25rem 0}code{background:var(--code);padding:.12rem .32rem;border-radius:5px;font:14px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace}pre{overflow:auto;background:var(--code);padding:16px 18px;border-radius:10px}pre code{padding:0}table{border-collapse:collapse;width:100%;font-size:.94rem}.table-wrap{overflow:auto}th,td{border:1px solid var(--line);padding:9px 11px;text-align:left;vertical-align:top}th{background:var(--code)}
+@media(max-width:680px){article{margin:0;padding:25px 20px;border:0;border-radius:0}h1{font-size:1.65rem}}
+</style>
+</head>
+<body>
+<article>
+<h1>部署总控台</h1>
+<p>鲲鹏总控台是一个常驻的本地 HTTP 服务，用来查看项目、工作流、人工门和运行状态。</p>
+<h2>最小启动方式</h2>
+<p>在终端运行：</p>
+<pre><code>kunpeng serve 7777</code></pre>
+<p>端口可以换成其它未被占用的端口。未写端口时默认使用 <code>7777</code>。</p>
+<p>默认监听 <code>127.0.0.1</code>，只有本机可以访问。启动后打开 <code>http://localhost:7777</code>。</p>
+<h2>选择单项目或多项目模式</h2>
+<p>只管理一个项目时，明确传入仓库路径：</p>
+<pre><code>kunpeng serve 7777 --repo &lt;项目仓库路径&gt;</code></pre>
+<p>这会进入单项目模式，只显示 <code>--repo</code> 指定的仓库。也可以用 <code>KUNPENG_REPO</code> 提供默认仓库路径。</p>
+<p>不传 <code>--repo</code>、也不设置 <code>KUNPENG_REPO</code> 时，总控台进入多项目注册表模式，聚合中央注册表里已经登记的项目。</p>
+<p>如果你只维护一个固定仓库，单项目模式最直接；如果同一台机器维护多个项目，先登记项目，再使用多项目模式更方便。</p>
+<h2>开放局域网访问</h2>
+<p>先为总控台设置密码。密码从 <code>KUNPENG_AUTH_PASSWORD</code> 或标准输入读取，不会作为命令行参数出现：</p>
+<pre><code>printf '%s' '&lt;强密码&gt;' | kunpeng auth set-password
+kunpeng serve 7777 --host 0.0.0.0</code></pre>
+<p>也可以先把密码放进当前进程环境，再运行 <code>kunpeng auth set-password</code>。不要把真实密码写进 shell 历史、脚本或仓库。</p>
+<p><code>--host 0.0.0.0</code> 会监听所有网卡，同一局域网内可用 <code>http://&lt;本机局域网IP&gt;:7777</code> 访问。</p>
+<p>只要绑定地址不是回环地址，鲲鹏就会检查是否已经配置访问密码；没有密码时会拒绝启动。回环地址 <code>127.0.0.1</code>、<code>localhost</code> 和 <code>::1</code> 永远不会被这条安全检查拦截。</p>
+<p>紧急调试时可显式设置 <code>KUNPENG_ALLOW_INSECURE=1</code> 跳过检查，但这会让可达该端口的人直接进入总控台，不建议使用，更不要用于公网暴露。</p>
+<h2>启动前检查</h2>
+<ul>
+<li>确认 Node.js 版本满足要求，且鲲鹏依赖已经安装。</li>
+<li>确认端口没有被其它服务占用。</li>
+<li>远程访问前先验证密码登录，再配置 HTTPS 反向代理或隧道。</li>
+<li>多项目模式下先确认目标项目已经出现在中央注册表中。</li>
+<li>命令选项可能随版本演进；不确定时以当前 CLI 的实际帮助为准。</li>
+</ul>
+</article>
+</body>
+</html>

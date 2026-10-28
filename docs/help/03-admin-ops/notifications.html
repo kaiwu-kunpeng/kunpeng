@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>配置手机推送</title>
+<style>
+:root{color-scheme:light dark;--bg:#f6f8fb;--paper:#fff;--text:#172033;--line:#dce2ea;--code:#eef2f7}
+@media(prefers-color-scheme:dark){:root{--bg:#0f141b;--paper:#171d26;--text:#e7edf5;--line:#303947;--code:#222b36}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:16px/1.75 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}
+article{max-width:920px;margin:36px auto;padding:42px 52px;background:var(--paper);border:1px solid var(--line);border-radius:16px;box-shadow:0 12px 36px rgba(20,35,55,.08)}
+h1{font-size:2rem;line-height:1.3;margin:0 0 1.2rem}h2{font-size:1.4rem;margin:2.1rem 0 .65rem;border-bottom:1px solid var(--line);padding-bottom:.35rem}h3{font-size:1.12rem;margin:1.5rem 0 .45rem}
+p{margin:.65rem 0}ul,ol{padding-left:1.5rem}li{margin:.25rem 0}code{background:var(--code);padding:.12rem .32rem;border-radius:5px;font:14px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace}pre{overflow:auto;background:var(--code);padding:16px 18px;border-radius:10px}pre code{padding:0}table{border-collapse:collapse;width:100%;font-size:.94rem}.table-wrap{overflow:auto}th,td{border:1px solid var(--line);padding:9px 11px;text-align:left;vertical-align:top}th{background:var(--code)}
+@media(max-width:680px){article{margin:0;padding:25px 20px;border:0;border-radius:0}h1{font-size:1.65rem}}
+</style>
+</head>
+<body>
+<article>
+<h1>配置手机推送</h1>
+<p>鲲鹏可在出现待处理合并门时，把通知发到手机。配置文件是 <code>~/.kunpeng/notify.json</code>。</p>
+<h2>完整配置示例</h2>
+<p>四个通道全部可选，填了哪个就推哪个，可以同时配置：</p>
+<pre><code>{
+  &quot;cockpitUrl&quot;: &quot;https://&lt;你的总控台域名&gt;&quot;,
+  &quot;telegram&quot;: {
+    &quot;token&quot;: &quot;&lt;Telegram Bot Token&gt;&quot;,
+    &quot;chatId&quot;: &quot;&lt;Telegram Chat ID&gt;&quot;
+  },
+  &quot;serverChan&quot;: &quot;&lt;Server酱 sendkey&gt;&quot;,
+  &quot;wxpusher&quot;: {
+    &quot;appToken&quot;: &quot;&lt;WxPusher appToken&gt;&quot;,
+    &quot;uid&quot;: &quot;&lt;WxPusher UID&gt;&quot;
+  },
+  &quot;wechatWebhook&quot;: &quot;https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=&lt;企业微信群机器人key&gt;&quot;
+}</code></pre>
+<p>不要把这份文件提交到仓库，也不要在截图或日志中暴露 token、sendkey、UID 或 webhook key。</p>
+<h2>四种通道怎么选</h2>
+<ul>
+<li><code>telegram</code>：需要成对填写 bot <code>token</code> 和 <code>chatId</code>。</li>
+<li><code>serverChan</code>：填写 Server酱 <code>sendkey</code>，用于推送到个人微信。</li>
+<li><code>wxpusher</code>：需要成对填写 <code>appToken</code> 和 <code>uid</code>，用于推送到个人微信。</li>
+<li><code>wechatWebhook</code>：填写企业微信群机器人 webhook，适合企业微信群。</li>
+</ul>
+<p>某个通道字段不完整时，该通道不会发送；其它配置完整的通道仍可工作。</p>
+<h2>cockpitUrl 的作用</h2>
+<p><code>cockpitUrl</code> 是用户可访问的总控台根地址。鲲鹏用它生成指向总控台收件箱的审批深链。</p>
+<p>远程审批时应填写经过 HTTPS 保护、手机实际可达的地址，不要填写仅服务器本机可访问的 <code>localhost</code>。</p>
+<p>未配置 <code>cockpitUrl</code> 时，消息仍可能发出，但“打开总控台”链接会是空地址拼出的相对结果，不能作为可用的远程审批链接。</p>
+<h2>发送与失败边界</h2>
+<p>外部通知采用 best-effort：已配置的通道并行发送，单通道失败不会阻断其它通道，也不会中断工作流。</p>
+<p>当前四个外部通道的发送路径没有承诺自动重试，也没有统一的约 10 秒超时保证；不要把通知通道当作唯一告警来源。浏览器 Web Push 是另一条机制，其网络请求有约 10 秒超时，不能与本页四通道混为一谈。</p>
+<p>调用入口会把推送作为尽力而为的旁路处理。运维时仍应查看总控台收件箱，不要仅凭“手机没收到”判断没有待处理事项。</p>
+<h2>常见问题排查</h2>
+<ol>
+<li>检查 JSON 是否能正常解析，字段名大小写是否与示例完全一致。</li>
+<li>检查 token、chatId、sendkey、appToken、uid 或 webhook URL 是否填错或已失效。</li>
+<li>检查服务器能否访问对应平台；受限网络、DNS 或代理配置都可能导致失败。</li>
+<li>检查 <code>cockpitUrl</code> 是否为手机可访问的 HTTPS 地址；未配置会导致审批链接不可点。</li>
+<li>分别只保留一个通道做测试，定位是公共网络问题还是单个平台配置问题。</li>
+<li>失败不会停止鲲鹏流程；请结合进程日志和总控台收件箱继续排查。</li>
+</ol>
+</article>
+</body>
+</html>

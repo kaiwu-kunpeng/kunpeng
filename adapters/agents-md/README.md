@@ -1,0 +1,1 @@
+compiles -> ../../AGENTS.md

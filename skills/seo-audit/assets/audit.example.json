@@ -1,0 +1,61 @@
+{
+  "_说明": "审计配置：所有脚本只读这一份。复制到工作目录 full/audit.json 后按站点改。以 _ 开头的键是注释。",
+  "origin": "https://www.example-travel.com",
+  "site_name": "ExampleTravel",
+  "client": "ExampleTravel",
+  "_issuer": "出具方。name 出现在页头、封面、页脚；monitor_label 是第三方平台数据在报告里的统一叫法；former_names 是要清零的旧名。",
+  "issuer": {"name": "开悟科技", "monitor_label": "开悟系统监控数据", "former_names": ["鹰眼"]},
+  "_report": "mode：diagnosis（只诊断，默认）或 plan（追加改进建议、修改单、执行计划）。slug 是公开短链 /r/<slug>。banned_terms 是本单额外要清零的词；allow_terms 是 AI 腔扫描放行的词（客户品牌词、引用原文）；number_gate=enforce 时正文未经 N() 登记的数字即失败（旧生成器用 report）；number_whitelist 是型号、功率等原文数字的正则。editions 是交付的版本：诊断客户 [brief, audit]，方案客户加 playbook，有技术对接加 annex。",
+  "report": {"mode": "diagnosis", "editions": ["brief", "audit"], "rid": "SA-2026-0101-EXT", "date": "2026-01-01", "slug": "example-travel", "banned_terms": [], "allow_terms": [], "number_gate": "enforce", "number_whitelist": []},
+  "_external": "第三方数据（data-collection 第 12 节）。peers 是参与外链中位数比较的竞品根域名，同一家多个域名只放一个。",
+  "external": {"pulled": "2026-01-01", "peers": ["competitor-a.com", "competitor-b.com"], "low_authority_max": 2},
+  "_locales": "参加实查的市场要填 gl / hl / google_domain；只用于判定目录归属的语种只填 dir 与 lang。",
+  "locales": {
+    "en": {"dir": "", "lang": "en", "gl": "us", "hl": "en", "google_domain": "google.com", "label": "美国（英文站）"},
+    "de": {"dir": "de", "lang": "de", "gl": "de", "hl": "de", "google_domain": "google.de", "label": "德国（德语站）"}
+  },
+  "_brand": "品牌与品牌化技术词的正则。用于：通用问题判定（命中就不算通用）、品牌词识别。",
+  "brand": "example ?travel|exampletravel",
+  "brand_terms": {"en": ["exampletravel"], "de": ["exampletravel"]},
+  "_seeds": "自动补全种子词。每个市场 15–25 个：品牌、主营品类、核心服务、城市/型号、对比、价格、评价。",
+  "seeds": {
+    "en": ["exampletravel", "china travel guide", "china visa free", "alipay for foreigners", "china esim"],
+    "de": ["exampletravel", "china reise", "china reiseführer", "china visumfrei", "china esim"]
+  },
+  "seed_alphabet": {"en": "china travel", "de": "china reise"},
+  "_domain": "关键词必须命中的业务相关正则；noise 命中即剔除。",
+  "domain": "china|shanghai|beijing|alipay|wechat|visa|visum|einreise|esim",
+  "noise": "chinatown|restaurant|porcelain|stock|aktie|horoscope",
+  "_clusters": "主题分类规则，顺序即优先级，也是实查时按主题轮流挑词的顺序。品牌词自动归入「品牌词」。",
+  "clusters": [
+    ["入境与签证", "visa|visum|entry|einreise|transit"],
+    ["支付", "alipay|wechat pay|payment|bezahlen"],
+    ["网络与 eSIM", "esim|vpn|internet"],
+    ["交通", "train|zug|didi|flight|metro"],
+    ["费用", "cost|kosten|price|preis|budget"],
+    ["评价与口碑", "review|erfahrung|safe|sicher\\b"],
+    ["对比", "\\bvs\\b|versus|or\\b"],
+    ["行程与攻略", "guide|reiseführer|itinerary|tips|tipps"]
+  ],
+  "review_clusters": ["评价与口碑", "对比"],
+  "serp_per_market": 14,
+  "serp_exclude": "",
+  "crawl": {"max_pages": 6000, "concurrency": 6, "skip_paths": ["/_next/", "/api/", "/wp-admin/"], "sitemaps": []},
+  "_page_types": "按 URL 路径（去掉语种目录后）判页型，顺序匹配，第一个命中生效；都不中归「栏目与其他页」。",
+  "page_types": [
+    ["首页", "^/?$"],
+    ["目的地详情页", "^/destinations/[^/]+/?$"],
+    ["问答页", "^/answers/(?!category)[^/]+/?$"]
+  ],
+  "_key_pages": "重点页：每个语种的首页和 3–5 个主栏目入口。kw 是该页的主关键词（取自该市场补全里命中最多的品类词），match 是判定正则（按词形，加词边界）。",
+  "key_pages": [
+    {"url": "/", "locale": "en", "type": "首页", "kw": "china travel", "match": "\\bchina travel\\b"},
+    {"url": "/de", "locale": "de", "type": "首页", "kw": "china reise", "match": "\\bchina[- ]reise\\b"}
+  ],
+  "_claims": "最高级/绝对化说法的正则，按语言，只放真正的最高级（first、most 这类普通词会大量误报）；出处判定：同一段落内有指向外站的链接，或出现 source_hint 里的机构名。",
+  "claims": {"en": "\\b(best|fastest|cheapest|easiest|safest|guaranteed|number one|highest|world.?s first|world.?s leading)\\b|#1\\b", "de": "\\b(beste[nrs]?|schnellste[nrs]?|günstigste[nrs]?|einzige[nrs]?|garantiert)\\b"},
+  "claim_source_hint": "",
+  "competitors": {"Competitor A": "https://www.competitor-a.com/", "Competitor B": "https://www.competitor-b.com/"},
+  "http_checks": {"redirect_starts": ["http://www.example-travel.com/", "https://example-travel.com/", "http://example-travel.com/"], "samples": ["/", "/de"]},
+  "cwv_urls": ["/", "/de"]
+}

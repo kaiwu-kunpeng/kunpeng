@@ -1,0 +1,174 @@
+<!-- @dsCard group="Screens" -->
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>鲲鹏后台 · 总览（指挥舱）</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#F8FAFC; --card:#FFFFFF; --line:#E2E8F0; --line-2:#EFF2F6;
+    --ink:#0F172A; --ink-2:#334155; --muted:#64748B; --muted-2:#475569;
+    --primary:#EA580C; --primary-2:#F97316; --primary-soft:#FFF7ED; --primary-100:#FFEDD5;
+    --success:#16A34A; --success-soft:#F0FDF4; --success-line:#BBF7D0;
+    --warn:#D97706; --warn-soft:#FFFBEB;
+    --sh-sm:0 1px 2px rgba(15,23,42,.06);
+    --sh-md:0 1px 3px rgba(15,23,42,.07),0 12px 28px -16px rgba(15,23,42,.4);
+  }
+  html,body{height:100%}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",Inter,sans-serif;background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased;line-height:1.55;overflow:hidden}
+  svg.i{width:19px;height:19px;flex-shrink:0;stroke:currentColor;stroke-width:1.7;fill:none;stroke-linecap:round;stroke-linejoin:round}
+  .app{display:flex;height:100vh;width:100%}
+
+  .rail{width:250px;background:var(--card);border-right:1px solid var(--line);display:flex;flex-direction:column;flex-shrink:0;padding:20px 14px}
+  .brand{display:flex;align-items:center;gap:12px;padding:4px 8px 20px}
+  .brand .logo{width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,#F97316,#FBBF24);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 6px 16px -5px rgba(249,115,22,.5)}
+  .brand .glyph{font-size:24px;font-weight:800;color:#fff;font-family:"PingFang SC","Hiragino Sans GB","Microsoft YaHei",serif}
+  .brand .wm{font-size:18px;font-weight:800;letter-spacing:1.5px;color:var(--ink)}
+  .brand .sub2{font-size:10.5px;font-weight:600;letter-spacing:1px;color:var(--muted);margin-top:2px}
+  .kbar{display:flex;align-items:center;gap:9px;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:9px 11px;font-size:13px;color:#94A3B8;margin-bottom:18px}
+  .kbar .kbd{margin-left:auto;font-size:10px;background:#fff;border:1px solid var(--line);border-radius:5px;padding:2px 6px;color:var(--muted)}
+  .nav-sec{font-size:10.5px;text-transform:uppercase;letter-spacing:1px;color:#94A3B8;margin:18px 10px 7px}
+  .nav-item{display:flex;align-items:center;gap:11px;padding:9px 12px;border-radius:9px;font-size:14px;color:var(--muted-2);cursor:pointer;margin-bottom:2px}
+  .nav-item:hover{background:var(--bg)}
+  .nav-item.active{background:var(--primary-soft);color:var(--primary);font-weight:600}
+  .nav-item .badge{margin-left:auto;background:var(--warn);color:#fff;font-size:11px;font-weight:700;border-radius:9px;padding:1px 8px}
+  .nav-item .dot{margin-left:auto;width:8px;height:8px;border-radius:50%}
+  .rail-foot{margin-top:auto;display:flex;align-items:center;gap:10px;padding:12px 8px 4px;border-top:1px solid var(--line);font-size:13px;color:var(--muted-2)}
+  .avatar{width:28px;height:28px;border-radius:50%;background:linear-gradient(140deg,#F97316,#FBBF24);display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff;font-weight:600}
+
+  .canvas{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+  .topbar{display:flex;align-items:center;gap:13px;padding:18px 30px;border-bottom:1px solid var(--line);flex-shrink:0;background:var(--card)}
+  .topbar h1{font-size:18px;font-weight:680}
+  .crumb{color:var(--muted);font-size:13px}
+  .spacer{flex:1}
+  .ghost-btn{display:flex;align-items:center;gap:7px;font-size:13px;color:var(--muted-2);border:1px solid var(--line);background:var(--card);border-radius:9px;padding:8px 13px;cursor:pointer;font-weight:520}
+  .ghost-btn svg.i{width:15px;height:15px}
+  .body{padding:24px 30px;overflow:auto;flex:1}
+  .wrap{max-width:1280px;margin:0 auto}
+
+  .hero{display:flex;align-items:stretch;gap:20px;background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden;box-shadow:var(--sh-md);position:relative}
+  .hero-text{padding:26px 28px;display:flex;flex-direction:column;justify-content:center;gap:12px;z-index:2}
+  .hero-badge{display:inline-flex;align-items:center;gap:7px;align-self:flex-start;background:var(--success-soft);border:1px solid var(--success-line);border-radius:999px;padding:5px 12px;font-size:12px;color:var(--success);font-weight:600}
+  .hero-badge .pdot{width:8px;height:8px;border-radius:50%;background:var(--success);box-shadow:0 0 0 4px rgba(22,163,74,.16)}
+  .hero-text h2{font-size:24px;font-weight:720;letter-spacing:.3px;line-height:1.25}
+  .hero-text .poem{color:var(--primary);font-size:13px;font-weight:540;letter-spacing:1.5px}
+  .hero-text .sub{color:var(--muted-2);font-size:13.5px}
+  .hero-art{flex:1;min-width:210px;position:relative;background:linear-gradient(120deg,#FFF7ED,#FFFBEB 60%,#fff)}
+  .hero-art svg{position:absolute;inset:0;width:100%;height:100%}
+
+  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(196px,1fr));gap:14px;margin:20px 0 4px}
+  .kpi{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px;display:flex;align-items:center;gap:13px;box-shadow:var(--sh-sm);transition:transform .12s,box-shadow .12s}
+  .kpi:hover{transform:translateY(-2px);box-shadow:var(--sh-md)}
+  .kpi .chip{width:42px;height:42px;border-radius:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .kpi .chip svg{width:21px;height:21px;stroke-width:1.85;fill:none;stroke-linecap:round;stroke-linejoin:round}
+  .kpi .n{font-size:28px;font-weight:720;letter-spacing:-.5px;line-height:1;color:var(--ink)}
+  .kpi .l{font-size:12px;margin-top:5px;color:var(--muted)}
+  .kpi.pri .chip{background:var(--primary-soft)} .kpi.pri .chip svg{stroke:var(--primary)}
+  .kpi.wrn .chip{background:var(--warn-soft)} .kpi.wrn .chip svg{stroke:var(--warn)} .kpi.wrn .n{color:var(--warn)}
+  .kpi.suc .chip{background:var(--success-soft)} .kpi.suc .chip svg{stroke:var(--success)}
+  .kpi.neu .chip{background:var(--bg)} .kpi.neu .chip svg{stroke:var(--muted)}
+
+  .section-h{display:flex;align-items:center;gap:10px;margin:26px 2px 12px}
+  .section-h h3{font-size:14px;font-weight:680}
+  .section-h .hint{color:var(--muted);font-size:12px;font-weight:400}
+  .section-h .more{margin-left:auto;color:var(--primary);font-size:12.5px;cursor:pointer;display:flex;align-items:center;gap:4px;font-weight:540}
+
+  .runs{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:var(--sh-sm)}
+  .run{display:flex;align-items:center;gap:13px;padding:15px 18px;border-bottom:1px solid var(--line);font-size:13.5px;flex-wrap:wrap}
+  .run:hover{background:var(--bg)}
+  .run:last-child{border-bottom:none}
+  .tag{font-size:11.5px;border-radius:6px;padding:3px 9px;flex-shrink:0;font-weight:560;background:var(--bg);color:var(--ink-2);border:1px solid var(--line)}
+  .run .name{font-weight:560;flex-shrink:0}
+  .stage{font-size:11.5px;border-radius:6px;padding:3px 9px;flex-shrink:0;font-weight:560}
+  .stage.impl{background:var(--primary-soft);color:var(--primary)} .stage.verify{background:var(--success-soft);color:var(--success)}
+  .bar{flex:1;height:7px;background:#E6EBF0;border-radius:5px;overflow:hidden;min-width:90px}
+  .bar > i{display:block;height:100%;border-radius:5px;background:var(--primary)}
+  .pct{color:var(--muted);font-size:12px;width:38px;text-align:right;flex-shrink:0;font-weight:560}
+  .note{margin-top:16px;color:var(--muted-2);font-size:12.5px;display:flex;gap:8px;align-items:flex-start;line-height:1.6}
+  .note .ni{color:var(--warn);flex-shrink:0;margin-top:1px}
+  .note b{color:var(--ink);font-weight:600}
+
+  @media (max-width: 920px){
+    .rail{width:64px;padding:18px 9px;align-items:center}
+    .rail .lbl,.kbar .lbl,.nav-sec,.nav-item .badge,.rail-foot .lbl,.rail-foot .spacer,.rail-foot span:last-child,.kbar .kbd{display:none}
+    .kbar{justify-content:center}.nav-item{justify-content:center;gap:0}.nav-item .dot{position:absolute;transform:translate(12px,-12px)}.brand{justify-content:center;gap:0}
+  }
+  @media (max-width: 680px){ .hero-art{display:none} }
+  @media (max-width: 600px){ .topbar{padding:14px 16px}.body{padding:16px}.hero-text{padding:22px}.hero-text h2{font-size:21px} }
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="rail">
+    <div class="brand"><span class="logo"><span class="glyph">鹏</span></span><span class="lbl"><div class="wm">鲲鹏</div><div class="sub2">AI 研发底座</div></span></div>
+    <div class="kbar"><svg class="i" style="width:15px;height:15px" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><span class="lbl">搜索 / 跳转</span><span class="kbd">⌘K</span></div>
+    <div class="nav-item active"><svg class="i" viewBox="0 0 24 24"><path d="m3 10 9-7 9 7v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 21v-8h6v8"/></svg><span class="lbl">总览</span><span class="dot" style="background:var(--success)"></span></div>
+    <div class="nav-item"><svg class="i" viewBox="0 0 24 24"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.4 5.1 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.4-6.9A2 2 0 0 0 16.8 4H7.2a2 2 0 0 0-1.8 1.1z"/></svg><span class="lbl">待我处理</span><span class="badge">3</span></div>
+    <div class="nav-sec">项目</div>
+    <div class="nav-item"><svg class="i" viewBox="0 0 24 24"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg><span class="lbl">acme-shop</span><span class="dot" style="background:var(--primary)"></span></div>
+    <div class="nav-item"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a14 14 0 0 1 3.6 9A14 14 0 0 1 12 21a14 14 0 0 1-3.6-9A14 14 0 0 1 12 3z"/></svg><span class="lbl">demo-travel</span><span class="dot" style="background:var(--success)"></span></div>
+    <div class="nav-item" style="color:#94A3B8"><svg class="i" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="M12 5v14"/></svg><span class="lbl">接管新项目</span></div>
+    <div class="nav-sec">系统</div>
+    <div class="nav-item"><svg class="i" viewBox="0 0 24 24"><path d="M12 3v3M12 18v3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M3 12h3M18 12h3"/><circle cx="12" cy="12" r="3.4"/></svg><span class="lbl">自进化</span></div>
+    <div class="nav-item"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg><span class="lbl">设置 / 账号</span></div>
+    <div class="rail-foot"><span class="avatar">P</span><span class="lbl">admin</span><span class="spacer"></span><span style="opacity:.5">▾</span></div>
+  </aside>
+
+  <main class="canvas">
+    <div class="topbar"><h1>总览</h1><span class="crumb">指挥舱</span><span class="spacer"></span>
+      <button class="ghost-btn"><svg class="i" viewBox="0 0 24 24"><path d="M3 12a9 9 0 0 1 15.5-6.2L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15.5 6.2L3 16"/><path d="M8 16H3v5"/></svg>刷新</button>
+    </div>
+
+    <div class="body">
+     <div class="wrap">
+      <div class="hero">
+        <div class="hero-text">
+          <span class="hero-badge"><span class="pdot"></span> 系统正常运行</span>
+          <h2>扶摇直上，一切安好</h2>
+          <div class="poem">鲲化为鹏 · 抟扶摇而上者九万里</div>
+          <div class="sub">无崩溃流 · 无活跃卡点 · 巡检自愈在岗 · main 499 测试全绿</div>
+        </div>
+        <div class="hero-art">
+          <svg viewBox="0 0 440 240" preserveAspectRatio="xMidYMid slice">
+            <defs>
+              <radialGradient id="sun" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#FDE68A" stop-opacity=".9"/><stop offset="55%" stop-color="#FED7AA" stop-opacity=".55"/><stop offset="100%" stop-color="#FED7AA" stop-opacity="0"/></radialGradient>
+              <linearGradient id="wingA" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#EA580C"/><stop offset="100%" stop-color="#FDBA74"/></linearGradient>
+              <linearGradient id="wingB" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#C2410C"/><stop offset="100%" stop-color="#FB923C"/></linearGradient>
+            </defs>
+            <circle cx="330" cy="84" r="94" fill="url(#sun)"/>
+            <circle cx="330" cy="84" r="28" fill="#FBBF24" opacity=".9"/>
+            <g fill="#fff"><path d="M128 46 l2.4 5.4 5.4 2.4 -5.4 2.4 -2.4 5.4 -2.4-5.4 -5.4-2.4 5.4-2.4z" opacity=".9"/><circle cx="262" cy="40" r="2.2" opacity=".8"/></g>
+            <g transform="translate(168 102) rotate(-13)">
+              <path d="M4 14 C-46 -20 -104 -26 -146 -6 C-100 8 -54 16 -2 24 Z" fill="url(#wingB)" opacity=".95"/>
+              <path d="M6 12 C44 -34 108 -50 158 -38 C118 -8 74 10 20 26 Z" fill="url(#wingA)"/>
+              <path d="M-10 16 C-2 2 16 0 28 10 C18 28 -2 30 -10 16 Z" fill="#C2410C"/>
+              <path d="M-10 16 C-22 20 -36 30 -46 44 C-26 36 -8 28 0 22 Z" fill="url(#wingB)" opacity=".85"/>
+            </g>
+            <g stroke="#FB923C" stroke-width="3" stroke-linecap="round" fill="none" opacity=".8"><path d="M244 96 q10 -11 20 0 q10 -11 20 0"/><path d="M290 66 q8 -9 16 0 q8 -9 16 0"/></g>
+            <g fill="#fff" opacity=".95"><ellipse cx="100" cy="220" rx="68" ry="21"/><ellipse cx="156" cy="213" rx="46" ry="17"/><ellipse cx="334" cy="228" rx="78" ry="23"/></g>
+          </svg>
+        </div>
+      </div>
+
+      <div class="kpis">
+        <div class="kpi pri"><span class="chip"><svg viewBox="0 0 24 24"><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/><circle cx="12" cy="12" r="4"/></svg></span><div><div class="n">2</div><div class="l">在跑流</div></div></div>
+        <div class="kpi wrn"><span class="chip"><svg viewBox="0 0 24 24"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.4 5.1 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.4-6.9A2 2 0 0 0 16.8 4H7.2a2 2 0 0 0-1.8 1.1z"/></svg></span><div><div class="n">3</div><div class="l">待我处理</div></div></div>
+        <div class="kpi suc"><span class="chip"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></span><div><div class="n">14</div><div class="l">今日已交付流</div></div></div>
+        <div class="kpi neu"><span class="chip"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span><div><div class="n">0</div><div class="l">卡死 / 长跑告警</div></div></div>
+      </div>
+
+      <div class="section-h"><h3>在跑什么</h3><span class="hint">跨项目 · 只读，点开下钻到阶段 / 日志</span><span class="more">全部 <svg class="i" style="width:13px;height:13px" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg></span></div>
+      <div class="runs">
+        <div class="run"><span class="tag">acme-shop</span><span class="name">订单状态筛选</span><span class="stage impl">implement</span><span class="bar"><i style="width:62%"></i></span><span class="pct">62%</span></div>
+        <div class="run"><span class="tag">demo-travel</span><span class="name">帮助中心内容页</span><span class="stage verify">verify</span><span class="bar"><i style="width:84%"></i></span><span class="pct">84%</span></div>
+      </div>
+
+      <div class="note"><svg class="i ni" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v5"/><path d="M12 16h.01"/></svg><span><b>总览没有「选设计 / 起方案」等干活按钮</b>——业务工作流都在「进入项目」里。指挥舱只回答一件事：一切正常吗。</span></div>
+     </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

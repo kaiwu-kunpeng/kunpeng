@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>鲲鹏 · 跨平台 AI 研发底座</title>
+<style>
+  :root{
+    --bg:#faf8f4; --ink:#23241f; --sub:#6c6a63; --line:#e4ded3;
+    --card:#ffffff; --red:#b3392f; --amber:#c98a1b; --amber-bg:#fdf6e9;
+    --blue:#2f6db0; --blue-bg:#eef4fb; --green:#2f8f5b; --green-bg:#ecf6f0;
+    --gray:#6b7280; --gray-bg:#f3f3f1; --teal:#2a8f8f; --teal-bg:#e8f5f4;
+    --hub:#1f2024;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--ink);
+    font-family:"PingFang SC","Hiragino Sans GB","Microsoft YaHei",system-ui,sans-serif;
+    line-height:1.6;-webkit-font-smoothing:antialiased;}
+  .serif{font-family:"Songti SC","STSong",Georgia,"Times New Roman",serif;}
+  .wrap{max-width:1180px;margin:0 auto;padding:64px 40px 96px;}
+
+  /* ---------- header ---------- */
+  .eyebrow{font-size:12px;letter-spacing:.32em;color:var(--sub);text-transform:uppercase;
+    display:flex;gap:14px;align-items:center;}
+  .eyebrow b{color:var(--ink);letter-spacing:.32em;font-weight:600;}
+  h1{font-size:54px;line-height:1.12;margin:22px 0 8px;font-weight:700;letter-spacing:-.5px;}
+  h1 .k{color:var(--red);}
+  .lead{font-size:18px;color:#45443e;max-width:860px;margin-top:14px;}
+  .lead .hl{color:var(--red);font-weight:600;}
+  .mainline{margin-top:26px;padding:16px 20px;background:#fff;border:1px solid var(--line);
+    border-radius:12px;font-size:14.5px;color:#45443e;}
+  .mainline b{color:var(--red);}
+  .divider{height:1px;background:var(--line);margin:60px 0;}
+
+  /* ---------- section ---------- */
+  .sec-no{font-size:12px;letter-spacing:.28em;color:var(--sub);text-transform:uppercase;}
+  h2{font-size:30px;font-weight:700;margin:8px 0 6px;letter-spacing:-.3px;}
+  .sec-sub{color:var(--sub);font-size:15px;margin-bottom:30px;}
+
+  /* ---------- diagram ---------- */
+  .stage-wrap{overflow-x:auto;padding-bottom:8px;}
+  .stage{position:relative;width:1120px;height:760px;margin:0 auto;}
+  .stage svg{position:absolute;inset:0;width:1120px;height:760px;z-index:0;}
+  .node{position:absolute;z-index:2;border-radius:13px;padding:13px 16px;
+    background:var(--card);border:1px solid var(--line);
+    box-shadow:0 1px 3px rgba(30,25,15,.05);width:210px;}
+  .node .nm{font-weight:700;font-size:16px;display:flex;align-items:center;gap:7px;}
+  .node .meta{font-size:11.5px;color:var(--sub);margin:3px 0 7px;font-weight:600;}
+  .node .fn{font-size:12px;color:#54524b;line-height:1.45;}
+  .node .dot{width:8px;height:8px;border-radius:50%;flex:none;}
+
+  .hub{width:280px;background:var(--hub);border-color:#000;color:#fff;
+    box-shadow:0 6px 22px rgba(20,15,5,.22);padding:18px 20px;}
+  .hub .nm{font-size:20px;color:#fff;}
+  .hub .meta{color:#c7b48b;}
+  .hub .fn{color:#d9d6cf;}
+
+  .n-blue{border-top:3px solid var(--blue);} .n-blue .dot{background:var(--blue);}
+  .n-amber{border-top:3px solid var(--amber);background:var(--amber-bg);} .n-amber .dot{background:var(--amber);}
+  .n-green{border-top:3px solid var(--green);} .n-green .dot{background:var(--green);}
+  .n-gray{border-top:3px solid var(--gray);background:var(--gray-bg);} .n-gray .dot{background:var(--gray);}
+  .n-teal{border-top:3px solid var(--teal);} .n-teal .dot{background:var(--teal);}
+
+  .elabel{position:absolute;z-index:3;font-size:11.5px;color:#7a766c;background:var(--bg);
+    padding:2px 8px;border-radius:6px;transform:translate(-50%,-50%);white-space:nowrap;font-weight:600;}
+  .elabel.red{color:var(--red);}
+  .badge{position:absolute;z-index:3;font-size:10px;letter-spacing:.1em;font-weight:700;
+    background:#fff;border:1px solid var(--line);color:var(--sub);border-radius:20px;padding:3px 10px;
+    transform:translate(-50%,-50%);}
+
+  /* ---------- loops ---------- */
+  .loops{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;}
+  .loop{background:#fff;border:1px solid var(--line);border-radius:14px;padding:22px 22px 24px;position:relative;}
+  .loop .ring{font-size:13px;font-weight:800;letter-spacing:.1em;}
+  .loop h3{font-size:18px;margin:6px 0 4px;}
+  .loop .tag{font-size:11px;font-weight:700;padding:2px 9px;border-radius:20px;display:inline-block;margin-bottom:10px;}
+  .loop p{font-size:13.5px;color:#54524b;}
+  .loop .flow{font-size:12.5px;color:#45443e;background:var(--bg);border-radius:8px;padding:9px 11px;margin-top:12px;font-weight:600;}
+  .L1{border-top:4px solid var(--hub);} .L1 .ring{color:var(--hub);} .L1 .tag{background:#ecebe8;color:#3a3a36;}
+  .L2{border-top:4px solid var(--amber);} .L2 .ring{color:var(--amber);} .L2 .tag{background:var(--amber-bg);color:var(--amber);}
+  .L3{border-top:4px solid var(--blue);} .L3 .ring{color:var(--blue);} .L3 .tag{background:var(--blue-bg);color:var(--blue);}
+  .nest{margin-top:18px;font-size:13.5px;color:#54524b;background:#fff;border:1px dashed var(--line);border-radius:10px;padding:14px 18px;}
+  .nest b{color:var(--red);}
+
+  /* ---------- upgrades ---------- */
+  .ups{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;}
+  .up{background:#fff;border:1px solid var(--line);border-radius:12px;padding:18px 20px;border-left:5px solid var(--line);}
+  .up.must{border-left-color:var(--red);}
+  .up.rec{border-left-color:var(--amber);}
+  .up .tt{font-weight:700;font-size:15.5px;display:flex;align-items:center;gap:9px;}
+  .up .pri{font-size:10px;font-weight:800;border-radius:5px;padding:2px 7px;flex:none;}
+  .up.must .pri{background:#fbe9e7;color:var(--red);}
+  .up.rec .pri{background:var(--amber-bg);color:var(--amber);}
+  .up p{font-size:13px;color:#54524b;margin-top:7px;}
+  .up .src{font-size:11px;color:var(--sub);margin-top:9px;font-style:italic;}
+
+  /* ---------- adapter ---------- */
+  .adapt{display:grid;grid-template-columns:1fr;gap:0;background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden;}
+  .arow{display:grid;grid-template-columns:230px 1fr;border-bottom:1px solid var(--line);}
+  .arow:last-child{border-bottom:none;}
+  .arow .h{padding:14px 18px;background:var(--bg);font-weight:700;font-size:14px;border-right:1px solid var(--line);}
+  .arow .v{padding:14px 18px;font-size:13.5px;color:#45443e;}
+  .arow .v code{background:var(--bg);padding:2px 6px;border-radius:5px;font-size:12.5px;color:var(--red);}
+  .center-note{text-align:center;font-size:13.5px;color:var(--sub);margin-top:16px;}
+  .center-note b{color:var(--red);}
+
+  /* ---------- metrics ---------- */
+  .metrics{display:grid;grid-template-columns:repeat(5,1fr);gap:0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);}
+  .met{padding:22px 14px;text-align:left;border-right:1px solid var(--line);}
+  .met:last-child{border-right:none;}
+  .met .big{font-size:30px;font-weight:800;color:var(--red);letter-spacing:-1px;}
+  .met .lab{font-size:12px;color:var(--sub);margin-top:4px;}
+  .met-note{font-size:11.5px;color:var(--sub);margin-top:10px;font-style:italic;}
+
+  /* ---------- tree ---------- */
+  pre.tree{background:#1f2024;color:#e8e5dd;border-radius:14px;padding:24px 26px;font-size:13px;line-height:1.7;
+    font-family:"SF Mono","JetBrains Mono",Menlo,monospace;overflow-x:auto;}
+  pre.tree .c{color:#c7b48b;}
+  pre.tree .r{color:#e88a7d;}
+
+  footer{margin-top:60px;font-size:12px;color:var(--sub);border-top:1px solid var(--line);padding-top:20px;
+    display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;}
+  @media(max-width:700px){.wrap{padding:40px 20px 64px}.loops,.ups,.metrics{grid-template-columns:1fr}h1{font-size:38px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ================= HEADER ================= -->
+  <header>
+    <div class="eyebrow"><b>鲲鹏 · KUNPENG</b><span>跨平台 AI 研发底座 / The Dev-Team Foundation</span></div>
+    <h1>一支造底座的<span class="k">数字研发团队</span>。<br>6 核心小组 + 内置组，分工协作。</h1>
+    <p class="lead">不是一份流程文档，而是一支能跑的数字团队：每个小组 = 一组 agent + 它的 loop + 它的产物契约。
+       <span class="hl">鲲</span>积于底（沉淀代码与知识），化而为<span class="hl">鹏</span>（自我进化、跨平台规模化飞跃）。
+       核心是纯文本资产，跨平台靠一层薄适配——<span class="hl">核心不绑工具，边缘才碰工具</span>。</p>
+    <div class="mainline" style="border-left:5px solid var(--red);">
+      <b>底座目标：</b>为<b>个人开发者</b>搭一支<b>全自动、可靠的 AI 军团</b>。你把需求「打电话」丢进去，军团自己 spec → 实现 → 验证 → 出版本，<b>只在少数不可逆/高风险节点回来找你</b>。可靠 &gt; 规模，自动 &gt; 花哨。
+    </div>
+    <div class="mainline">
+      <b>协作主线：</b>所有「发现问题 → 改代码」都汇到 <b>开发循环（中心枢纽）</b>；各组把经验上交 <b>自我进化（进化中枢）</b>，它再下发改进；完工统一交给 <b>构建发布</b> 出版本。
+    </div>
+  </header>
+
+  <div class="divider"></div>
+
+  <!-- ================= DIAGRAM ================= -->
+  <section>
+    <div class="sec-no">F-01 · 组织全景</div>
+    <h2>鲲鹏研发团队 · 全景图</h2>
+    <p class="sec-sub">hub-and-spoke 拓扑：开发循环居中持笔，进化中枢在侧改写，守护组在外巡检，文档与通讯内置预留。</p>
+    <div class="mainline" style="border-left:5px solid var(--blue);margin-bottom:26px;">
+      <b>读图提示：</b>「6 组 / 组长 + N 人 / 约 33 人」只是<b>示意</b>。真实机制就一句话——<b>一个主 agent（管目标·进度·底线）+ 按需起的子 agent（领短目标、做完即回）</b>。下面的组与角色是<b>按需实例化的能力，不是固定编制，也不是军规</b>；简单需求可不派子 agent，直接做。
+    </div>
+
+    <div class="stage-wrap">
+    <div class="stage">
+      <svg viewBox="0 0 1120 760" preserveAspectRatio="xMidYMid meet">
+        <!-- solid spokes -->
+        <g stroke="#cfc7b8" stroke-width="1.6" fill="none">
+          <line x1="560" y1="400" x2="560" y2="120"/>   <!-- 运行巡检 -->
+          <line x1="560" y1="400" x2="390" y2="645"/>   <!-- 构建发布 -->
+          <line x1="560" y1="400" x2="760" y2="660"/>   <!-- 跨工作区通讯 -->
+        </g>
+        <!-- faint doc spokes -->
+        <g stroke="#ddd6c8" stroke-width="1.4" fill="none">
+          <line x1="560" y1="400" x2="200" y2="430"/>   <!-- 手册编辑部 -->
+          <line x1="560" y1="400" x2="920" y2="430"/>   <!-- 文档治理 -->
+        </g>
+        <!-- dashed spokes -->
+        <g stroke="#c98a1b" stroke-width="1.5" fill="none" stroke-dasharray="6 5">
+          <line x1="560" y1="400" x2="895" y2="235"/>   <!-- 自我进化 -->
+        </g>
+        <g stroke="#9aa3b0" stroke-width="1.5" fill="none" stroke-dasharray="6 5">
+          <line x1="560" y1="400" x2="235" y2="250"/>   <!-- 代码治理 -->
+        </g>
+      </svg>
+
+      <!-- HUB -->
+      <div class="node hub" style="left:420px;top:340px;">
+        <div class="nm">开发循环 · 中心枢纽</div>
+        <div class="meta">组长 + 7 人 · CORE HUB</div>
+        <div class="fn">产品 · 设计 · 开发 · 评审 · 测试 · 代码审查 · 测试审计</div>
+      </div>
+
+      <!-- 运行巡检 (top) -->
+      <div class="node n-blue" style="left:455px;top:36px;">
+        <div class="nm"><span class="dot"></span>运行巡检</div>
+        <div class="meta">组长 + 2 人</div>
+        <div class="fn">本地巡检 · 远端监控</div>
+      </div>
+
+      <!-- 代码治理 (upper-left) -->
+      <div class="node n-blue" style="left:130px;top:196px;">
+        <div class="nm"><span class="dot"></span>代码治理</div>
+        <div class="meta">组长 + 3 人</div>
+        <div class="fn">扫描 · 分析 · 审查</div>
+      </div>
+
+      <!-- 自我进化 (upper-right) -->
+      <div class="node n-amber" style="left:790px;top:178px;width:240px;">
+        <div class="nm"><span class="dot"></span>自我进化 · 进化中枢</div>
+        <div class="meta">EVOLUTION CORE</div>
+        <div class="fn">经验汇集 → 改写 · 验证 · 固化 · MCP；唤醒 · 原则审计</div>
+      </div>
+
+      <!-- 手册编辑部 (mid-left) -->
+      <div class="node n-gray" style="left:95px;top:392px;">
+        <div class="nm"><span class="dot"></span>手册编辑部</div>
+        <div class="meta">组长 + 4 人</div>
+        <div class="fn">清点 · 分析 · 撰写 · 审查</div>
+      </div>
+
+      <!-- 文档治理 (mid-right) -->
+      <div class="node n-gray" style="left:815px;top:392px;">
+        <div class="nm"><span class="dot"></span>文档治理 · 内置</div>
+        <div class="meta">组长</div>
+        <div class="fn">变更扫描 · 索引审计 · Wiki · 答疑</div>
+      </div>
+
+      <!-- 构建发布 (bottom-left) -->
+      <div class="node n-green" style="left:285px;top:601px;">
+        <div class="nm"><span class="dot"></span>构建发布</div>
+        <div class="meta">组长 + 6 人</div>
+        <div class="fn">Mac · Win · 移动端 · SDK 发布</div>
+      </div>
+
+      <!-- 跨工作区通讯 (bottom-right) -->
+      <div class="node n-teal" style="left:655px;top:616px;">
+        <div class="nm"><span class="dot"></span>跨工作区通讯 · 内置</div>
+        <div class="meta">组长 + 1 人 · 接线员</div>
+        <div class="fn">用户可打电话提需求（跨工具入口）</div>
+      </div>
+
+      <!-- edge labels -->
+      <div class="elabel red" style="left:560px;top:248px;">发现问题 → 改</div>
+      <div class="elabel" style="left:392px;top:330px;">扫描 · 分析 · 审查</div>
+      <div class="elabel red" style="left:735px;top:312px;">经验上交 · 下发</div>
+      <div class="elabel" style="left:470px;top:530px;">完工 → 发版</div>
+      <div class="elabel" style="left:672px;top:538px;">打电话 · 提需求</div>
+      <div class="badge" style="left:380px;top:420px;">文档接口 · 预留</div>
+      <div class="badge" style="left:740px;top:420px;">文档接口 · 预留</div>
+    </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ================= 3 LOOPS ================= -->
+  <section>
+    <div class="sec-no">F-02 · 运转机制</div>
+    <h2>三层 Loop 嵌套</h2>
+    <p class="sec-sub">图里其实画了三种 loop，它们是嵌套关系而非并列——三环咬合，底座越跑越强。</p>
+    <div class="loops">
+      <div class="loop L1">
+        <div class="ring">① 主循环</div>
+        <h3>开发循环</h3>
+        <span class="tag">中心枢纽 · 人机协作</span>
+        <p>一个需求从进来到出版本的主链。内层快反馈环住在这里：实现跑 TDD 红-绿-重构，评审跑 review→修复→再 review，出 bug 跑 debug 假设-验证。审计不过 → 打回实现。</p>
+        <div class="flow">需求 → spec → 设计 → 实现 → 评审 → 测试 → 审计 → 完工</div>
+      </div>
+      <div class="loop L2">
+        <div class="ring">② 元循环</div>
+        <h3>自我进化</h3>
+        <span class="tag">进化中枢 · 无人值守</span>
+        <p>独立于主循环、定时唤醒的自治 loop。消费各组吐出的经验产物，沉淀成下一版的角色卡和宪法——底座<b>改进自己</b>的循环。（已套四道对齐护栏，见 F-03）</p>
+        <div class="flow">收集经验 → 改写 → 验证 → 人工批准 → 固化 → 原则审计 → 下发</div>
+      </div>
+      <div class="loop L3">
+        <div class="ring">③ 守护循环</div>
+        <h3>运行巡检 + 代码治理</h3>
+        <span class="tag">持续后台 · 常驻</span>
+        <p>不等需求触发，常驻扫描：运行巡检盯运行时（本地+远端），代码治理盯代码库（扫描·分析·审查），发现问题虚线回灌中心枢纽，变成新需求。</p>
+        <div class="flow">常驻扫描 → 发现问题 → 回灌开发循环</div>
+      </div>
+    </div>
+    <div class="nest">
+      <b>嵌套关系：</b>守护循环 <b>喂</b> 主循环（发现问题→改）；主循环 <b>产出</b>经验喂元循环；元循环 <b>改写</b>主循环与守护循环的规则。
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ================= VALIDATION ================= -->
+  <section>
+    <div class="sec-no">F-03 · 对照高星项目 · 这块是否真的能对</div>
+    <h2>用跑过的高星代码验证设计</h2>
+    <p class="sec-sub">不靠博客背书，靠真有人跑过、且有星数的开源项目来对。结论先行 👇</p>
+    <div class="mainline" style="border-left:5px solid var(--green);">
+      <b>结论：方向被验证，但有一个坑必须避开。</b>把研发团队做成 agent 组织，是 <b>68.7k★ MetaGPT</b>、<b>33.4k★ ChatDev</b> 跑通过的真命题；"跨工具统一流程"也已有人在做（flow-kit 融合 spec-kit/BMAD/superpowers/task-master）。<b>但 org chart 是概念地图，不能照字面实现成 33 个互相聊天的 agent</b>——那正是 ChatDev 撞过的脆性墙。安全路径 = 单写者 + 产物驱动 + 确定性骨架 + 小验证 agent，也就是下一节那七条。<b>图可以这么画，落地必须比图克制。</b>
+    </div>
+    <div class="ups" style="margin-top:22px;">
+      <div class="up"><div class="tt">OpenHands&nbsp;<span style="color:var(--amber);font-weight:800">76.7k★</span></div><p>AI 驱动开发的主力形态是<b>单 agent + 事件流</b>，不是 agent 群聊。<br><i>借鉴 → 单写者主循环</i></p></div>
+      <div class="up"><div class="tt">MetaGPT&nbsp;<span style="color:var(--amber);font-weight:800">68.7k★</span></div><p>「Code = SOP(Team)」，角色间传<b>结构化文档（PRD/设计）</b>而非闲聊——这是它赢过 AutoGPT 的根因。<br><i>借鉴 → 产物即契约</i></p></div>
+      <div class="up"><div class="tt">crewAI&nbsp;<span style="color:var(--amber);font-weight:800">53.4k★</span></div><p>角色编排框架可规模化复用。<br><i>借鉴 → 角色卡/编排；规避 → 纯 role-play 发散</i></p></div>
+      <div class="up"><div class="tt">ChatDev&nbsp;<span style="color:var(--amber);font-weight:800">33.4k★</span></div><p>虚拟软件公司 + <b>communicative dehallucination</b>（先问清再写）。<br><i>借鉴 → 审查/反幻觉规则；规避 → 多 agent 互聊脆性</i></p></div>
+      <div class="up"><div class="tt">claude-task-master&nbsp;<span style="color:var(--amber);font-weight:800">27.4k★</span></div><p>同一套任务系统 drop-in 进 Cursor / Windsurf / Roo。<br><i>借鉴 → 跨工具落地的真实证据</i></p></div>
+      <div class="up"><div class="tt">flow-kit&nbsp;<span style="color:var(--amber);font-weight:800">0.3k★</span></div><p>已有人融合 spec-kit/BMAD/superpowers/task-master 成统一流程。<br><i>借鉴 → 证明"跨工具统一流程"是真需求，非我们独创</i></p></div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ================= UPGRADES ================= -->
+  <section>
+    <div class="sec-no">F-04 · 对外取经后的升级</div>
+    <h2>七项升级：从概念图到能稳定跑</h2>
+    <p class="sec-sub">外部最新实践整体验证了方向，但有七个点决定它会不会埋雷 / 返工。🔴 必收 · 🟡 建议。</p>
+    <div class="ups">
+      <div class="up must">
+        <div class="tt"><span class="pri">必收 01</span>单写者原则：只让「开发循环」一支笔写代码</div>
+        <p>多 agent 并行<b>写</b>同一份代码会致命脆裂（假设打架、上下文丢失）。解法是业界共识：<b>并行的是智力/发现，串行的是写入</b>。其他组只产出发现与提案，不直接改代码；30 并行开发流各自 worktree 隔离。</p>
+        <div class="src">来源：Cognition《Don't Build Multi-Agents》× Anthropic 多 agent 研究系统</div>
+      </div>
+      <div class="up must">
+        <div class="tt"><span class="pri">必收 02</span>自我进化套四道对齐护栏</div>
+        <p>全图最高风险组件。研究警告：奖励黑客、安全对齐的灾难性遗忘、记忆投毒。四道护栏：<b>①不可变核心条款</b>（永不可被进化改写）<b>②进化只提案、写回过人类批准门 ③全程 diff+理由可回滚 ④经验入库验真</b>。</p>
+        <div class="src">来源：Alignment Tipping Process (arXiv 2510.04860) · Self-Evolving Agents Survey</div>
+      </div>
+      <div class="up must">
+        <div class="tt"><span class="pri">必收 03</span>可移植层锚定 AGENTS.md 标准</div>
+        <p>别自造私有格式。<code>AGENTS.md</code> 2025/12 已进 Linux 基金会 Agentic AI Foundation，OpenAI/Anthropic/Google/AWS 共同背书，与 MCP 并列成事实标准。适配层<b>编译产出标准 AGENTS.md（+MCP 接工具）</b>，子项目就近放、最近的赢。</p>
+        <div class="src">来源：AGENTS.md (Linux Foundation) · GitHub Spec-Kit</div>
+      </div>
+      <div class="up rec">
+        <div class="tt"><span class="pri">建议 04</span>主循环 = 确定性状态机 + 小 agent 点</div>
+        <p>能 ship 的生产系统几乎都是<b>确定性工作流，只在关键决策点嵌小而专的 agent 环</b>，而非一个大 agent 自由发挥。好处：可暂停/恢复、可观测、不失控。</p>
+        <div class="src">来源：12-Factor Agents（own-your-control-flow · stateless-reducer · small-focused-agents）</div>
+      </div>
+      <div class="up rec">
+        <div class="tt"><span class="pri">建议 05</span>上下文工程写进角色卡</div>
+        <p>上下文填过 <b>40% 就进"变笨区"</b>。每张角色卡规定只喂该 stage 需要的产物切片，错误 compact 进上下文。把 hub-and-spoke 的"上下文隔离"从缺点变卖点。</p>
+        <div class="src">来源：Context Engineering 2025 · 12-Factor Agents #3</div>
+      </div>
+      <div class="up rec">
+        <div class="tt"><span class="pri">建议 06</span>拓扑不写死：按复杂度选</div>
+        <p>自适应拓扑比固定拓扑好 <b>+22.9%</b>。简单需求走单线程直做（不惊动全队），复杂需求才展开 hub-and-spoke 全队，避免过度编排。</p>
+        <div class="src">来源：AdaptOrch 基准 · 12 Topology Patterns</div>
+      </div>
+      <div class="up rec">
+        <div class="tt"><span class="pri">建议 07</span>Living spec：产物随实现自更新</div>
+        <p>agent 完工后回写 spec 反映现实，否则实现一偏离、真相源就腐化成废纸。"产物即真相"要加这条活性约束。</p>
+        <div class="src">来源：GitHub Spec-Kit · Living Specs</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ================= TOKEN ECONOMY ================= -->
+  <section>
+    <div class="sec-no">F-05 · Token 经济</div>
+    <h2>省 Token 的设计（与可靠性同向）</h2>
+    <p class="sec-sub">关键洞察：在这套设计里 <b style="color:var(--red)">省 token 和 可靠性是同一个方向，不是 trade-off</b>——产物驱动、单写者、确定性骨架、小 agent，既省钱又更稳。</p>
+    <div class="ups">
+      <div class="up rec"><div class="tt"><span class="pri">T1</span>稳定前缀 · 缓存友好</div><p>宪法 + 角色卡放最前且少改 → 命中 prompt cache，<b>稳定前缀省最高 90% 成本、降 85% 延迟</b>。进化中枢每改一次宪法就废一次缓存，所以"进化只提案、批量固化"也是省钱纪律。</p><div class="src">来源：Prompt Caching · Don't Break the Cache (arXiv 2601.06007)</div></div>
+      <div class="up rec"><div class="tt"><span class="pri">T2</span>文件系统即上下文卸载</div><p>"产物即真相"天然就是 context offloading：大产物存盘，agent <b>按需只 load 切片</b>，不整库塞窗口——既省 token 又躲开 40%「变笨区」。</p><div class="src">来源：Context Offloading · 12-Factor #3</div></div>
+      <div class="up rec"><div class="tt"><span class="pri">T3</span>模型路由 / 级联</div><p>便宜阶段（扫描·格式化·分类·文档）走小模型 Haiku，关键阶段（设计·代码·审计）才上 Opus。<b>每张角色卡声明默认 model tier。</b></p><div class="src">来源：Multi-Model Routing & Cascading</div></div>
+      <div class="up rec"><div class="tt"><span class="pri">T4</span>子 agent 隔离 + 限深 + 只回摘要</div><p>隔离子 agent 省 token（实测 <b>9K vs 15K</b>），但要限 orchestrator→subagent 的 hop 深度防「token 复利」，且子 agent <b>只回摘要不回全文</b>。</p><div class="src">来源：Subagent Isolation 基准</div></div>
+      <div class="up rec"><div class="tt"><span class="pri">T5</span>工具懒加载</div><p>不预载全部工具 schema，<b>按需检索</b>（本环境的 deferred tools 就是这个机制）；角色卡只声明最小工具集。</p><div class="src">来源：Lazy-load Tools / MCP</div></div>
+      <div class="up rec"><div class="tt"><span class="pri">T6</span>确定性优先，LLM 兜底</div><p>grep / lint / test 这类确定性命令能判的，<b>绝不调 LLM</b>；LLM 只在确定性手段判不了时才上——守护循环尤其靠这条，省 token 又更稳。</p><div class="src">来源：12-Factor Agents（确定性骨架）</div></div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ================= ADAPTER ================= -->
+  <section>
+    <div class="sec-no">F-06 · 跨平台之所以成立</div>
+    <h2>可移植适配层</h2>
+    <p class="sec-sub">同一支数字团队，编译到不同工具。换工具不丢流程——这是「跨平台底座」唯一能成立的办法。</p>
+    <div class="adapt">
+      <div class="arow"><div class="h">核心资产（不绑工具）</div><div class="v">宪法 · 角色卡花名册 · 产物 schema · loop 配方 —— 全是纯文本</div></div>
+      <div class="arow"><div class="h">编译产出（标准层）</div><div class="v"><code>AGENTS.md</code> 作跨工具真相源 + <code>MCP</code> 接工具能力</div></div>
+      <div class="arow"><div class="h">→ Claude Code</div><div class="v">subagent（各组）· skill（流程）· command（触发）· cron（守护/进化 loop）</div></div>
+      <div class="arow"><div class="h">→ Cursor</div><div class="v">rules / .cursor 规则文件 + 就近 AGENTS.md</div></div>
+      <div class="arow"><div class="h">→ Codex / 其它</div><div class="v">任何认 AGENTS.md 标准的工具，零改写直接读取</div></div>
+    </div>
+    <p class="center-note">入口由 <b>跨工作区通讯组（接线员）</b> 承载：用户在任意工具里"打电话提需求"，统一进开发循环。</p>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ================= METRICS ================= -->
+  <section>
+    <div class="sec-no">F-07 · 真正的目标指标</div>
+    <h2>我们要的是自动化与可靠，不是产量</h2>
+    <p class="sec-sub">全自动 AI 军团的成败，不看提交量，看下面这些质量指标。</p>
+    <div class="metrics">
+      <div class="met"><div class="big">≥80<span style="font-size:16px">%</span></div><div class="lab">需求自动完成率（无人工介入即交付）</div></div>
+      <div class="met"><div class="big">3</div><div class="lab">仅 3 类人工门（合并主干·改宪法·对外发布）</div></div>
+      <div class="met"><div class="big">100<span style="font-size:16px">%</span></div><div class="lab">声明完成 = 真通过 test/verify</div></div>
+      <div class="met"><div class="big">100<span style="font-size:16px">%</span></div><div class="lab">出错可干净回滚（单写者 + worktree）</div></div>
+      <div class="met"><div class="big">↓</div><div class="lab">token 成本 / 需求 持续下降</div></div>
+    </div>
+    <p class="met-note">原图的 14,122 提交 / 190 发布 / 97 万行 / 259 规格，是「千机」素材的示意数，<b>不是鲲鹏的目标</b>——鲲鹏要的是上面这些自动化与可靠性指标：可靠 &gt; 规模。</p>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ================= DIRECTORY ================= -->
+  <section>
+    <div class="sec-no">F-08 · 落地形态</div>
+    <h2>/kunpeng/ 仓库结构</h2>
+    <p class="sec-sub">底座本体即此目录：六层纯文本资产，外加一层适配。</p>
+<pre class="tree">/kunpeng/
+├── <span class="c">constitution/</span>          宪法层（团队不可协商的规矩）
+│   ├── core.md          <span class="r">← 不可变核心，进化也不能改写</span>
+│   └── conventions.md   可演进的约定（质量门 / 回滚纪律 / 人介入点）
+├── <span class="c">roster/</span>               角色花名册（每个数字员工一张角色卡）
+│   ├── dev-loop/        开发循环 · 7 角色（产品/设计/开发/评审/测试/审查/审计）
+│   ├── self-evolution/  自我进化 · 进化中枢
+│   ├── code-governance/ 代码治理      ├── runtime-inspection/  运行巡检
+│   ├── build-release/   构建发布      ├── handbook/            手册编辑部
+│   ├── doc-governance/  文档治理·内置 └── switchboard/         跨工作区通讯·内置
+├── <span class="c">artifacts/</span>            产物层 schema + 状态机
+│   └── spec · plan · task · review · experience（draft→approved→in-progress→verified）
+├── <span class="c">loops/</span>                三类 loop 配方
+│   ├── dev-cycle.md     主循环（确定性状态机 + 小 agent 点）
+│   ├── self-evolution.md 元循环（无人值守 · 四道护栏）
+│   └── guardian.md      守护循环（运行巡检 + 代码治理）
+├── <span class="c">adapters/</span>             跨平台适配层
+│   ├── claude-code/  →  subagent + skill + command + cron
+│   ├── cursor/       →  rules
+│   └── agents-md/    →  编译产出标准 AGENTS.md
+└── <span class="c">AGENTS.md</span>             <span class="r">← 编译产出，跨工具真相源</span>
+</pre>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ================= IMPLEMENTED ================= -->
+  <section>
+    <div class="sec-no">F-09 · 落地实现（已完成 · 不是 PPT）</div>
+    <h2>方案已变成能跑的编排器</h2>
+    <p class="sec-sub">概念图落成 TS/Node 编排器 `orchestrator/`，SPEC §10 的 M0–M3 全部实现、双后端真机验证、opus 终审通过。</p>
+    <div class="mainline" style="border-left:5px solid var(--green);">
+      <b>状态：</b>14 模块 · 6 命令 · <b>38 测试全过</b> · ~25 提交在 main · claude/codex 双后端真机端到端 <b>verified</b>。子 agent = 你登录态的 CLI（claude 默认 / codex 切 KUNPENG_BACKEND），<b>零 API key</b>。
+    </div>
+
+    <div class="adapt" style="margin-top:22px;">
+      <div class="arow"><div class="h">组（概念图）</div><div class="v">落地实现 → CLI 命令</div></div>
+      <div class="arow"><div class="h">跨工作区通讯（接线员）</div><div class="v"><code>cli.ts</code> → <code>kunpeng run "&lt;需求&gt;"</code></div></div>
+      <div class="arow"><div class="h">开发循环（中枢）</div><div class="v">确定性状态机 + 单写者 worktree + 验证门 + <b>测试审计角色</b></div></div>
+      <div class="arow"><div class="h">代码治理 / 运行巡检（守护）</div><div class="v"><code>guardian.ts</code> 确定性扫描器→回灌 → <code>kunpeng guard</code></div></div>
+      <div class="arow"><div class="h">自我进化（进化中枢）</div><div class="v"><code>self-evolution.ts</code> 四道护栏（双层防御）→ <code>kunpeng evolve</code></div></div>
+      <div class="arow"><div class="h">构建发布</div><div class="v"><code>build-release.ts</code> → <code>kunpeng release "&lt;build&gt;"</code></div></div>
+      <div class="arow"><div class="h">手册编辑部 / 文档治理</div><div class="v"><code>docs.ts</code> 索引 + AGENTS.md 编译 → <code>kunpeng doc</code> / <code>compile</code></div></div>
+    </div>
+
+    <h2 style="font-size:22px;margin-top:34px;">真机跑才暴露、且当场修掉的集成 bug</h2>
+    <p class="sec-sub">这些是“只有真跑才抓得到”的——正是冒烟测试的价值。</p>
+    <div class="ups">
+      <div class="up must"><div class="tt"><span class="pri">修</span>codex stdin 死锁</div><p>codex exec 把开着的 stdin 管道当“等输入”无限挂（0% CPU 睡死）。→ <b>spawn 子进程 stdin=ignore</b>，立刻拿 EOF。</p></div>
+      <div class="up must"><div class="tt"><span class="pri">修</span>codex 审批阻塞</div><p>无 TTY 时弹审批永远等不到。→ <code>--dangerously-bypass-approvals-and-sandbox</code>（隔离可回滚 worktree 内可接受）。</p></div>
+      <div class="up must"><div class="tt"><span class="pri">修</span>验证门用错 shell</div><p>agent 吐 bash 命令 <code>cmp &lt;(...)</code>，默认 <code>/bin/sh</code> 语法错。→ 验证门改用 <b>/bin/bash</b>。</p></div>
+      <div class="up must"><div class="tt"><span class="pri">修</span>弱验证虚过</div><p>实现者自挑 <code>test -f</code> 让空文件也 verified。→ <b>验证命令来自 spec 验收标准 + 测试审计角色</b>拦弱测试。</p></div>
+      <div class="up rec"><div class="tt"><span class="pri">硬</span>后端调用超时</div><p>任何后端卡住到点 <b>SIGKILL + 报错</b>，绝不无限挂。</p></div>
+      <div class="up rec"><div class="tt"><span class="pri">硬</span>语料完整性 + 进化护栏</div><p>experience id 唯一化（防覆盖污染）；自我进化对 core 改写<b>双层拒绝</b>（正则 + 全代码无写宪法路径）。</p></div>
+    </div>
+  </section>
+
+  <footer>
+    <span>鲲鹏 KUNPENG · 跨平台 AI 研发底座 · 方案 v2（已落地实现）</span>
+    <span>hub-and-spoke 数字团队 · 三层 loop · 单写者 · 测试审计 · 进化护栏 · AGENTS.md 标准</span>
+  </footer>
+
+</div>
+</body>
+</html>
