@@ -1,0 +1,9 @@
+# 复用宿主机已有公网入口(如 host 网络 Caddy 已占 80/443)时的覆盖文件,与主文件叠加:
+#   docker compose -f deploy/aliyun/docker-compose.aliyun.yml \
+#     -f deploy/aliyun/docker-compose.reuse-caddy.yml up -d
+# 把套件自带的 caddy 挂到未激活的 profile → 默认不启动,公网入口沿用宿主机现有配置
+# (setup-instance.sh 检测到 80 端口已被占用时会自动叠加本文件)。
+services:
+  caddy:
+    profiles:
+      - disabled
