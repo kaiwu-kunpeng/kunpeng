@@ -4,8 +4,8 @@
 
 ```text
 Internet ──443──> Caddy(自动 TLS) ──> kunpeng 容器 :7777(仅 docker 网内可达)
-                                        │  KUNPENG_STATE=/var/lib/kunpeng(云盘)
-                                        │  项目仓挂载 /srv/repos → /workspace/repos
+                                        │  KUNPENG_STATE=/data/kunpeng/lib(数据盘)
+                                        │  项目仓挂载 /data/kunpeng/repos → /workspace/repos
 SSH(22,限管理 IP)──> ssh -L 7777 应急通道(实例宿主机回环)
 ```
 
@@ -97,16 +97,18 @@ docker compose -f deploy/aliyun/docker-compose.aliyun.yml exec kunpeng codex log
 # Claude Code:长期令牌走环境变量
 # ① 在有浏览器的本机执行 claude setup-token,复制令牌
 # ② 实例上写进 deploy/aliyun/.env:CLAUDE_CODE_OAUTH_TOKEN=<令牌>
-# ③ 重建容器加载环境:docker compose -f deploy/aliyun/docker-compose.aliyun.yml up -d
+# ③ 重建容器加载环境(注意:宿主已有 80 入口时必须叠加 reuse-caddy,否则误启套件 caddy 抢端口):
+docker compose -f deploy/aliyun/docker-compose.aliyun.yml -f deploy/aliyun/docker-compose.reuse-caddy.yml up -d
+# 或只动鲲鹏服务:docker compose -f deploy/aliyun/docker-compose.aliyun.yml up -d kunpeng
 ```
 
-两个后端互为备份:一个失效时同次调用自动改用另一个(`KUNPENG_BACKEND` 未钉死时)。登录态在 `/var/lib/kunpeng/backend-auth/`,持久。
+两个后端互为备份:一个失效时同次调用自动改用另一个(`KUNPENG_BACKEND` 未钉死时)。登录态在 `${KUNPENG_STATE}/backend-auth/`(默认 `/var/lib/kunpeng`,数据盘部署为 `/data/kunpeng/lib`),持久。
 
 ## 4. 登记项目仓
 
 ```bash
-# 实例上把要管理的仓克隆到 /srv/repos/(私有仓需部署密钥或 PAT)
-cd /srv/repos && git clone <repo-url> <名字>
+# 实例上把要管理的仓克隆到 ${KUNPENG_REPOS}/(默认 /srv/repos,数据盘部署为 /data/kunpeng/repos;私有仓需部署密钥或 PAT)
+cd /data/kunpeng/repos && git clone <repo-url> <名字>
 
 # 登记进中央注册表(repoPath 用容器内路径 /workspace/repos/<名字>)
 cd /opt/kunpeng-src
@@ -114,8 +116,8 @@ docker compose -f deploy/aliyun/docker-compose.aliyun.yml exec kunpeng \
   node dist/cli.js register --repo /workspace/repos/<名字> --name <项目名>
 
 # 提交身份保险(flow 里的 git commit 需要;已有全局配置可跳过)
-git -C /srv/repos/<名字> config user.name  <你的名字>
-git -C /srv/repos/<名字> config user.email <你的邮箱>
+git -C /data/kunpeng/repos/<名字> config user.name  <你的名字>
+git -C /data/kunpeng/repos/<名字> config user.email <你的邮箱>
 
 # 查看已登记项目
 docker compose -f deploy/aliyun/docker-compose.aliyun.yml exec kunpeng node dist/cli.js projects
@@ -139,7 +141,7 @@ curl -fsSI https://kp.example.com/ | head -3
 
 ```bash
 cd /opt/kunpeng-src && git pull --ff-only
-bash deploy/aliyun/setup-instance.sh   # 幂等:重建镜像、重启容器;/var/lib/kunpeng 不动
+bash deploy/aliyun/setup-instance.sh   # 幂等:重建镜像、重启容器;${KUNPENG_STATE} 状态卷不动
 ```
 
 回滚 = `git checkout <旧提交>` 后重跑;状态目录始终独立于镜像。
