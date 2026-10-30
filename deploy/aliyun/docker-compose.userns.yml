@@ -1,0 +1,14 @@
+# 放开 user namespace:codex Linux 沙箱(bwrap)需要 unshare/clone(CLONE_NEWUSER) + userns 内 mount
+# 依据变更申请: /data/kunpeng/repos/enable-userns-for-codex.md (方案A扩展: seccomp+apparmor+sysctl 三件套)
+# 三层配置:
+#   1. seccomp=./seccomp-userns.json  放行 unshare/setns/clone/clone3/mount/umount2/pivot_root/chroot
+#   2. apparmor=unconfined            容器脱离 AppArmor mediation(docker-default 默认拒绝 mount)
+#   3. 宿主 /etc/sysctl.d/99-kunpeng-userns.conf: apparmor_restrict_unprivileged_userns=0
+# 防线保留: seccomp 精确白名单 + 无 capabilities + node 用户(非 root)
+# 回滚: 删除本文件 + rm /etc/sysctl.d/99-kunpeng-userns.conf && sysctl --system 后按三文件链重建
+# 注意: 重跑 setup-claude-code.sh 后需按四文件链再 up -d 一次
+services:
+  kunpeng:
+    security_opt:
+      - seccomp=./seccomp-userns.json
+      - apparmor=unconfined
