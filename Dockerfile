@@ -13,6 +13,11 @@ RUN npm run build
 # run/plan 所需后端；登录见 docs/runbooks/install.md「容器内的 AI 后端登录」。
 RUN npm install -g @anthropic-ai/claude-code @openai/codex
 
+# 容器内终端/总控台直接敲 kunpeng(只 npm run build 未链接 package.json 的 bin 字段)
+RUN printf '#!/bin/sh\nexec node /opt/kunpeng/orchestrator/dist/cli.js "$@"\n' \
+      > /usr/local/bin/kunpeng \
+    && chmod 755 /usr/local/bin/kunpeng
+
 RUN chown -R node:node /opt/kunpeng
 USER node
 

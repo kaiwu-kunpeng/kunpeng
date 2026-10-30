@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sub2API ECS 部署操作手册（号池服务）</title>
+<style>
+  :root { --ink:#1a1d21; --sub:#5a6068; --line:#e4e7eb; --bg:#f7f8fa; --accent:#0f6b4f; --warn-bg:#fdf3e7; --warn-ink:#8a5a00; --code-bg:#f0f2f5; }
+  * { box-sizing:border-box; }
+  body { margin:0; font:15px/1.75 -apple-system,"PingFang SC","Microsoft YaHei",sans-serif; color:var(--ink); background:var(--bg); }
+  .page { max-width:880px; margin:0 auto; padding:48px 40px 96px; background:#fff; min-height:100vh; box-shadow:0 0 24px rgba(0,0,0,.04); }
+  h1 { font-size:26px; line-height:1.35; margin:0 0 6px; }
+  .meta { color:var(--sub); font-size:13px; border-bottom:1px solid var(--line); padding-bottom:18px; margin-bottom:26px; }
+  h2 { font-size:19px; margin:40px 0 12px; padding-left:12px; border-left:4px solid var(--accent); }
+  h3 { font-size:16px; margin:26px 0 8px; }
+  p, li { color:var(--ink); }
+  code { font:13px/1.6 ui-monaco,SFMono-Regular,Consolas,monospace; background:var(--code-bg); padding:1px 6px; border-radius:4px; }
+  pre { background:#171a1f; color:#dce3ea; border-radius:10px; padding:16px 18px; overflow-x:auto; }
+  pre code { background:none; color:inherit; padding:0; font-size:12.5px; line-height:1.7; }
+  table { border-collapse:collapse; width:100%; margin:14px 0; font-size:14px; }
+  th, td { border:1px solid var(--line); padding:8px 12px; text-align:left; vertical-align:top; }
+  th { background:var(--bg); font-weight:600; }
+  blockquote { margin:16px 0; padding:10px 16px; border-left:4px solid var(--line); background:var(--bg); color:var(--sub); border-radius:0 8px 8px 0; }
+  .warn { background:var(--warn-bg); color:var(--warn-ink); border:1px solid #f0dcb8; border-radius:10px; padding:14px 18px; margin:18px 0; }
+  .warn strong { color:inherit; }
+  ul, ol { padding-left:22px; }
+  .k { color:#8bd5ff; } .c { color:#7d8794; } .s { color:#a8e6a1; }
+</style>
+</head>
+<body>
+<div class="page">
+  <h1>Sub2API ECS 部署操作手册（号池服务）</h1>
+  <div class="meta">目标机：阿里云 ECS · 47.85.82.7 · /data 数据盘 · 2026-10-29 · 真相源：<code>docs/runbooks/sub2api-ecs-deploy.md</code></div>
+
+  <blockquote>把多个 Claude Max 订阅账号池化为 OpenAI/Anthropic 兼容 API（<code>base_url + api_key</code>），供 kaiwu / Dify / 自研程序调用。决策记录：管理后台走 SSH 隧道（公网零暴露）；鲲鹏 CLI 直连不经 sub2api；代理出口先裸跑观察。</blockquote>
+
+  <div class="warn">
+    <strong>风险声明（部署前必读）</strong>
+    <ul>
+      <li><strong>上游 ToS 风险</strong>：号池化订阅额度可能违反 Anthropic/OpenAI 服务条款，封号风险自负（项目 README 官方明示）。</li>
+      <li><strong>IP 关联风险</strong>：多号共享一个 IDC 出口 IP 是风控敏感点；稳态运营建议每个号配独立住宅代理出口。当前策略：先裸跑观察，出向流量走 ECS 公网 IP（47.85.82.7）。</li>
+      <li>项目定位为技术学习研究，勿商用。</li>
+    </ul>
+  </div>
+
+  <h2>1. 架构与落位</h2>
+  <pre><code>Max 号 1..N ──OAuth──&gt; sub2api 容器(127.0.0.1:8180) ──发 key──&gt; kaiwu/Dify/业务程序
+                        ├── PostgreSQL 15  (渠道/用户/日志)
+                        └── Redis 7        (会话/限流)
+代码/配置: /opt/sub2api/    (docker-compose.yml + .env,600)
+数据:      /data/sub2api/   (data/ postgres_data/ redis_data/,落数据盘)
+管理入口:  ssh -L 8180 隧道 → 本地浏览器 http://127.0.0.1:8180</code></pre>
+  <table>
+    <tr><th>项</th><th>值</th><th>说明</th></tr>
+    <tr><td>端口</td><td><code>127.0.0.1:8180</code> → 容器 8080</td><td>宿主 8080/8081 已被旧 kaiwu-portal 占用，必须换</td></tr>
+    <tr><td>数据盘</td><td><code>/data/sub2api/</code></td><td>49G 数据盘，当前余 46G</td></tr>
+    <tr><td>安全组</td><td><strong>无需改动</strong></td><td>8180 仅回环，公网零暴露</td></tr>
+    <tr><td>与鲲鹏关系</td><td>无耦合</td><td>鲲鹏走 CLI 直连（codex/claude OAuth），不经 sub2api</td></tr>
+  </table>
+
+  <h2>2. 部署步骤</h2>
+
+  <h3>2.1 准备目录</h3>
+  <pre><code>mkdir -p /opt/sub2api /data/sub2api && cd /opt/sub2api</code></pre>
+
+  <h3>2.2 官方一键准备（生成 compose + 密钥）</h3>
+  <pre><code>curl -sSL https://raw.githubusercontent.com/Wei-Shaw/sub2api/main/deploy/docker-deploy.sh | bash</code></pre>
+  <p>脚本会：下载 <code>docker-compose.local.yml</code> 存为 <code>docker-compose.yml</code>、从 <code>.env.example</code> 生成 <code>.env</code>（自动写入随机 <code>JWT_SECRET</code> / <code>TOTP_ENCRYPTION_KEY</code> / <code>POSTGRES_PASSWORD</code> / <code>ADMIN_EMAIL</code>，权限 600）、创建 <code>data/ postgres_data/ redis_data/</code> 三个目录。</p>
+  <p><strong>立即记录</strong>（脚本输出里也有）：</p>
+  <pre><code>grep -E "ADMIN_EMAIL" .env        <span class="c"># 管理员登录名(admin-xxxx@sub2api.local)</span></code></pre>
+  <blockquote>仅重复执行时脚本才有覆盖确认交互；首次执行无交互。</blockquote>
+
+  <h3>2.3 本地化调整（三处，避坑核心）</h3>
+  <pre><code>cd /opt/sub2api
+
+<span class="c"># ① 端口:8080 被 kaiwu-portal 占用 → 改绑回环 8180(公网零暴露)</span>
+<span class="c">#    编辑 docker-compose.yml,找到 sub2api 服务的 ports,把 "8080:8080" 改为:</span>
+<span class="c">#      - "127.0.0.1:8180:8080"</span>
+
+<span class="c"># ② 数据目录:默认 ./data 等相对路径 → 改落数据盘</span>
+<span class="c">#    编辑 docker-compose.yml,把三个 volume 源路径改到 /data/sub2api/:</span>
+<span class="c">#      ./data          → /data/sub2api/data</span>
+<span class="c">#      ./postgres_data → /data/sub2api/postgres_data</span>
+<span class="c">#      ./redis_data    → /data/sub2api/redis_data</span>
+<span class="c">#    (先 grep 确认 compose 里的实际写法)</span>
+grep -n -E "data|postgres|redis" docker-compose.yml
+
+<span class="c"># ③ 数据盘目录建好并授权</span>
+mkdir -p /data/sub2api/{data,postgres_data,redis_data}</code></pre>
+
+  <h3>2.4 启动</h3>
+  <pre><code>cd /opt/sub2api && docker compose up -d
+docker compose ps                      <span class="c"># 三个服务(sub2api/postgres/redis)应 Up</span></code></pre>
+
+  <h3>2.5 取首启管理员密码</h3>
+  <pre><code>docker compose logs sub2api 2&gt;&amp;1 | grep -i -A2 "password"   <span class="c"># 首启自动生成,立即保存</span></code></pre>
+
+  <h2>3. 管理后台访问（SSH 隧道）</h2>
+  <p>本地 Mac 执行：</p>
+  <pre><code>ssh -i /Users/xiehuaqiao/Desktop/aliyun/_xxwl-kunpeng.pem -L 8180:127.0.0.1:8180 root@47.85.82.7
+<span class="c"># 保持连接,本地浏览器打开:  http://127.0.0.1:8180</span></code></pre>
+  <p>登录：<code>ADMIN_EMAIL</code>（.env 里）+ 首启密码。<strong>登录后立即改密并开启 TOTP 两步验证。</strong></p>
+
+  <h2>4. 号池配置（Web 后台操作）</h2>
+  <ol>
+    <li><strong>添加渠道</strong>：渠道/Channel → 新建 → 选 Claude（Max Plan 订阅类型）</li>
+    <li><strong>账号入池</strong>：在渠道下添加账号，走 OAuth 授权——后台生成授权链接，本地浏览器打开、登录对应的 Max 账号并授权；每个号重复一次</li>
+    <li><strong>建用户/分组</strong>：按下游业务建用户（如 <code>kaiwu</code>、<code>dify</code>），归入分组</li>
+    <li><strong>生成 API key</strong>：给每个用户生成独立 key（额度/限流可按用户控制）</li>
+  </ol>
+  <blockquote>后台菜单名称以实际版本界面为准；渠道 → 账号(OAuth) → 用户/key 三级结构不变。</blockquote>
+
+  <h2>5. 下游调用</h2>
+  <pre><code>curl http://127.0.0.1:8180/v1/chat/completions \
+  -H <span class="s">"Authorization: Bearer &lt;sub2api生成的key&gt;"</span> \
+  -H <span class="s">"Content-Type: application/json"</span> \
+  -d <span class="s">'{"model":"claude-sonnet-4-5","messages":[{"role":"user","content":"ping"}]}'</span></code></pre>
+  <ul>
+    <li>OpenAI 兼容：<code>/v1/chat/completions</code>；Anthropic 兼容：<code>/v1/messages</code>（按客户端选）</li>
+    <li>模型名以渠道配置为准</li>
+    <li>跨机器调用（如需要）：后续经宿主 Caddy 加子域名反代 + 鉴权，当前不开</li>
+  </ul>
+
+  <h2>6. 代理出口位（预留，暂不启用）</h2>
+  <ul>
+    <li><strong>整容器出向</strong>：compose 给 sub2api 服务加 <code>environment: HTTPS_PROXY=...</code>（全部号共用一个出口）</li>
+    <li><strong>每号独立出口</strong>：查后台渠道/账号级代理设置（以实际版本功能为准）；生态常规做法是住宅代理一号一 IP</li>
+    <li>当前裸跑；若某号被风控/吊销，再按号配代理</li>
+  </ul>
+
+  <h2>7. 备份 / 升级 / 回滚</h2>
+  <pre><code><span class="c"># 备份(数据盘整体已有 ECS 云盘快照策略,这里补应用级)</span>
+tar -czf /data/backups/sub2api-$(date +%F).tar.gz -C /data sub2api -C /opt sub2api/.env
+
+<span class="c"># 升级</span>
+cd /opt/sub2api && docker compose pull && docker compose up -d
+
+<span class="c"># 回滚:数据卷(/data/sub2api)与镜像解耦,重跑旧版 compose 即可;升级前先打快照</span></code></pre>
+
+  <h2>8. 安全清单</h2>
+  <ul>
+    <li>8180 仅回环绑定，公网零暴露，安全组无需放行新端口</li>
+    <li><code>.env</code>（600）含 DB 密码与 JWT 密钥，勿提交、勿外传</li>
+    <li>管理后台必开 TOTP；API key 泄漏 = 额度泄漏，定期轮换</li>
+    <li>与鲲鹏（/data/kunpeng）、kaiwu（/data/kaiwu-cli）目录严格隔离，互不触碰</li>
+  </ul>
+
+  <h2>9. 维护命令速查</h2>
+  <pre><code>cd /opt/sub2api
+docker compose ps                       <span class="c"># 状态</span>
+docker compose logs -f sub2api          <span class="c"># 跟日志</span>
+docker compose restart sub2api          <span class="c"># 重启网关(不动 DB)</span>
+docker compose down                     <span class="c"># 停(数据在 /data/sub2api 不丢)</span>
+df -h /data                             <span class="c"># 数据盘余量</span></code></pre>
+</div>
+</body>
+</html>
