@@ -39,3 +39,4 @@ error.log
 .tmp-shots/
 orchestrator/.kunpeng/
 __pycache__/
+.trae-html-share-packages/
