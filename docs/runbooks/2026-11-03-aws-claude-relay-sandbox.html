@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AWS 鲲鹏容器 · Claude 双中转沙箱接线手册</title>
+<style>
+  :root { --ink:#1a1a1a; --mut:#667; --line:#e3e6ea; --bg:#fafbfc; --acc:#0a6e5c; --warn:#8a5a00; }
+  * { box-sizing:border-box; }
+  body { font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif; color:var(--ink); background:var(--bg); margin:0; line-height:1.75; }
+  .wrap { max-width:880px; margin:0 auto; padding:48px 28px 96px; }
+  h1 { font-size:26px; border-bottom:3px solid var(--acc); padding-bottom:12px; margin:0 0 8px; }
+  .meta { color:var(--mut); font-size:14px; margin-bottom:32px; }
+  h2 { font-size:20px; margin-top:48px; padding-left:12px; border-left:4px solid var(--acc); }
+  h3 { font-size:17px; margin-top:32px; color:var(--acc); }
+  table { border-collapse:collapse; width:100%; font-size:14px; margin:16px 0; }
+  th,td { border:1px solid var(--line); padding:8px 12px; text-align:left; vertical-align:top; }
+  th { background:#eef1f4; }
+  code { font-family:ui-monospace,Menlo,Consolas,monospace; font-size:13px; background:#eef1f4; padding:1px 5px; border-radius:4px; }
+  pre { background:#101828; color:#d7e0ea; padding:16px 18px; border-radius:8px; overflow-x:auto; line-height:1.6; }
+  pre code { background:none; padding:0; color:inherit; font-size:12.5px; }
+  .note { background:#fff8e6; border-left:4px solid var(--warn); padding:10px 14px; border-radius:0 6px 6px 0; font-size:14px; margin:14px 0; }
+  ul,ol { padding-left:24px; }
+  li { margin:4px 0; }
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>AWS 鲲鹏容器 · Claude 双中转沙箱接线手册<br><span style="font-size:16px;color:var(--mut);font-weight:normal">2026-11-03</span></h1>
+<p class="meta">目标：鲲鹏容器内 spawn 的 Claude CLI 走第三方中转沙箱（qorz + ccmaxx 双账号），与宿主 OAuth 原环境彻底隔离；账号池按用量自动轮换。本文为真相源 <code>2026-11-03-aws-claude-relay-sandbox.md</code> 的阅读版。</p>
+
+<h2>0. 终态架构</h2>
+<table>
+<tr><th>组件</th><th>容器内路径</th><th>宿主路径</th><th>持久性</th></tr>
+<tr><td>状态卷（KUNPENG_STATE 口径）</td><td><code>/home/node/.kunpeng</code></td><td><code>/opt/kunpeng/lib</code> → <code>/data/kunpeng/lib</code>（symlink）</td><td>持久</td></tr>
+<tr><td>原环境（OAuth claude）</td><td><code>/home/node/.claude</code>、<code>~/.claude.json</code></td><td><code>/opt/kunpeng/claude</code>、<code>/opt/kunpeng/claude-json/.claude.json</code></td><td>持久（bind mount，全程未动）</td></tr>
+<tr><td>qorz 沙箱（旧 key sk-cc-3c52…）</td><td><code>/home/node/.kunpeng/backend-auth/qorz-claude</code></td><td><code>/data/kunpeng/lib/backend-auth/qorz-claude</code></td><td>持久</td></tr>
+<tr><td>ccmaxx 沙箱（新 key sk-cc-1ecf…）</td><td><code>/home/node/.kunpeng/backend-auth/ccmaxx-claude</code></td><td><code>/data/kunpeng/lib/backend-auth/ccmaxx-claude</code></td><td>持久</td></tr>
+<tr><td>账号注册表</td><td><code>/home/node/.kunpeng/accounts.json</code></td><td><code>/data/kunpeng/lib/accounts.json</code></td><td>持久（靠 <code>KUNPENG_ACCOUNTS</code> 注入，见坑 ②）</td></tr>
+<tr><td>会话历史共享</td><td>ccmaxx 沙箱 <code>projects</code> → <code>/home/node/.claude/projects</code>（软链）</td><td>—</td><td>持久</td></tr>
+<tr><td>宿主机器指纹</td><td><code>/home/node/.kunpeng/host-machine-id</code></td><td><code>/data/kunpeng/lib/host-machine-id</code>（拷自宿主 <code>/etc/machine-id</code>）</td><td>持久</td></tr>
+</table>
+<div class="note"><b>净化原则</b>（相对中转服务官方装机模板的改造）：<b>无 alias 劫持</b>（不写任何 rc 文件）、<b>无 bypassPermissions</b>（保持默认询问模式）、<b>无 deny 削减</b>、机器指纹读宿主真身而非镜像层。启动方式 = 鲲鹏账号池（<code>kunpeng account add</code>），中转通道仅作为「claude 后端的一个账号」参与调度。</div>
+
+<h2>1. Canonical 启动命令（2026-11-03 起）</h2>
+<pre><code>sudo docker run -d --name kunpeng --restart unless-stopped \
+  --user node --shm-size 1g \
+  --security-opt seccomp=unconfined --security-opt apparmor=unconfined \
+  -p 127.0.0.1:7777:7777 \
+  -e KUNPENG_ACCOUNTS=/home/node/.kunpeng/accounts.json \
+  -v /opt/kunpeng/repos:/workspace/repos \
+  -v /opt/kunpeng/claude:/home/node/.claude \
+  -v /opt/kunpeng/claude-json/.claude.json:/home/node/.claude.json \
+  -v /opt/kunpeng/codex:/home/node/.codex \
+  -v /opt/kunpeng/lib:/home/node/.kunpeng \
+  kunpeng-aws:latest</code></pre>
+<p>与旧命令的两处差异：<b>删除 <code>-e KUNPENG_BACKEND=codex</code></b>（恢复混合路由：spec/audit/review/verify→claude、implement→codex；此前 claude 沙箱接线因此被锁死）、<b>新增 <code>KUNPENG_ACCOUNTS</code></b>（见坑 ②）。</p>
+
+<h2>2. 踩平的四个坑</h2>
+<h3>坑 ① cliVersion 精确字符串匹配</h3>
+<p>中转 bootstrap 接口对 <code>payload.cliVersion</code> 做<b>全等比较</b>（<code>=== '2.1.310'</code>）。上报 <code>claude --version</code> 原始输出（<code>2.1.310 (Claude Code)</code>）会被拒，且报错文案原样回显版本、看着自相矛盾。解法：<code>split(' ')[0]</code> 取纯版本号。容器内 claude 必须为精确 2.1.310（<code>docker exec -u root kunpeng npm install -g @anthropic-ai/claude-code@2.1.310</code>）。</p>
+<h3>坑 ② accounts.json 默认落镜像易失层</h3>
+<p><code>resolveKunpengHome()</code> 从模块位置回推仓根（容器内 <code>/opt/kunpeng</code>），账号注册默认写 <code>/opt/kunpeng/.kunpeng/accounts.json</code> = <b>容器可写层，重建即失</b>（实测：重建后账号池清空）。<code>KUNPENG_HOME</code> 不能改指状态卷（宪法/角色卡也从仓根读）。解法：<code>-e KUNPENG_ACCOUNTS=/home/node/.kunpeng/accounts.json</code>（CLI 写入与运行时 <code>loadAccounts</code> 都优先认它）。caveat：cockpit 配额面板（<code>dashboard.ts</code> 直读 <code>join(home,".kunpeng","accounts.json")</code>）不走此变量，面板可能显示不出配额，核心调度不受影响。</p>
+<h3>坑 ③ 容器 machine-id 是镜像的</h3>
+<p><code>/etc/machine-id</code> 在容器内是镜像层烙的，同镜像共享、重建即变，中转的设备绑定会失效。解法：宿主 <code>cp /etc/machine-id /data/kunpeng/lib/host-machine-id</code>，bootstrap 优先读它（本次已做，<code>ec2a8a4d…</code>，跨重建稳定）。</p>
+<h3>坑 ④ claude 2.1.310 装在易失层</h3>
+<p><code>npm install -g</code> 进容器可写层，<b>每次容器重建后须重装</b>（一条命令，见坑 ①）。治本（把版本烙进镜像）属鲲鹏仓库改动，留待后续走自建 loop。</p>
+
+<h2>3. 重建后 SOP（三步）</h2>
+<pre><code># ① 重装 claude 2.1.310（坑④）
+sudo docker exec -u root kunpeng npm install -g @anthropic-ai/claude-code@2.1.310
+# ② 核对账号池（应双账号预检 ✓，accounts.json 在状态卷不会丢）
+sudo docker exec kunpeng kunpeng account list
+# ③ healthz + 环境核对
+curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:7777/healthz   # 200
+sudo docker exec kunpeng sh -c 'env | grep KUNPENG_BACKEND || echo "OK 已解除"'</code></pre>
+
+<h2>4. 沙箱通道日常使用</h2>
+<ul>
+<li>鲲鹏 loop 的 claude stage：自动走账号池，双账号按「本窗口用量最小者」轮换（均无上限则顺序轮转）。</li>
+<li>手动进沙箱：<code>docker exec -e CLAUDE_CONFIG_DIR=/home/node/.kunpeng/backend-auth/ccmaxx-claude -it kunpeng claude</code>。</li>
+<li>手动走原 OAuth：<code>docker exec -it kunpeng claude</code>（默认路径未被占用/未被劫持）。</li>
+<li>ccmaxx 沙箱的会话历史与原环境共享（projects 软链）；qorz 沙箱未共享，如需一致可补同样软链。</li>
+<li>重新 bootstrap（换 key/换机器指纹后）：在容器内跑净化版 bootstrap 脚本（读 host-machine-id、cliVersion 取纯版本号、不带任何 bypassPermissions）。</li>
+</ul>
+
+<h2>5. 验证记录（2026-11-03 实测）</h2>
+<table>
+<tr><th>项</th><th>证据</th></tr>
+<tr><td>qorz 沙箱真机对话</td><td><code>claude -p "请只回复OK" → OK</code></td></tr>
+<tr><td>ccmaxx 沙箱真机对话</td><td>同上 → <code>OK</code>（新 key 设备绑定未被拒，同宿主双 key 可并存）</td></tr>
+<tr><td>双账号注册</td><td><code>account list</code>：qorz ✓ / ccmaxx ✓ 预检通过</td></tr>
+<tr><td>accounts.json 持久化</td><td>宿主 <code>/opt/kunpeng/lib/accounts.json</code>（338B，重建后存活）</td></tr>
+<tr><td>KUNPENG_BACKEND 解除</td><td>重建后 <code>env | grep KUNPENG_BACKEND</code> 无输出</td></tr>
+<tr><td>原环境完好</td><td><code>/opt/kunpeng/claude/.credentials.json</code> 等 mtime 全程未变（bootstrap 只写沙箱目录）</td></tr>
+<tr><td>projects 软链</td><td><code>readlink → /home/node/.claude/projects</code>，重建后存活</td></tr>
+<tr><td>服务自愈</td><td>healthz 200（重建后第 2 次探测）</td></tr>
+</table>
+
+<h2>6. 安全注意（无法净化的剩余风险）</h2>
+<ul>
+<li><b>鲲鹏 claude stage 的全部 prompt/代码将流经中转服务器</b>（qorz/ccmaxx，日志政策未知）——loop 中不要明文出现密钥/客户敏感数据。</li>
+<li>沙箱保持默认询问模式（未设 bypassPermissions）是有意的：中转返回的内容不可视为可信指令源。</li>
+<li>两把 key 已在多轮输出中出现过，建议在中转服务侧轮换。</li>
+</ul>
+</div>
+</body>
+</html>

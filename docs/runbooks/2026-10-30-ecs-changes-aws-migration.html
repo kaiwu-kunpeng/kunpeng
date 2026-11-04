@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ECS 全量变更手册（AWS 迁移执行版）</title>
+<style>
+  :root { --ink:#1a1a1a; --mut:#667; --line:#e3e6ea; --bg:#fafbfc; --acc:#0a6e5c; --warn:#8a5a00; }
+  * { box-sizing:border-box; }
+  body { font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif; color:var(--ink); background:var(--bg); margin:0; line-height:1.75; }
+  .wrap { max-width:880px; margin:0 auto; padding:48px 28px 96px; }
+  h1 { font-size:26px; border-bottom:3px solid var(--acc); padding-bottom:12px; margin:0 0 8px; }
+  .meta { color:var(--mut); font-size:14px; margin-bottom:32px; }
+  h2 { font-size:20px; margin-top:48px; padding-left:12px; border-left:4px solid var(--acc); }
+  h3 { font-size:17px; margin-top:32px; color:var(--acc); }
+  table { border-collapse:collapse; width:100%; font-size:14px; margin:16px 0; }
+  th,td { border:1px solid var(--line); padding:8px 12px; text-align:left; vertical-align:top; }
+  th { background:#eef1f4; }
+  code { font-family:ui-monospace,Menlo,Consolas,monospace; font-size:13px; background:#eef1f4; padding:1px 5px; border-radius:4px; }
+  pre { background:#101828; color:#d7e0ea; padding:16px 18px; border-radius:8px; overflow-x:auto; line-height:1.6; }
+  pre code { background:none; padding:0; color:inherit; font-size:12.5px; }
+  .note { background:#fff8e6; border-left:4px solid var(--warn); padding:10px 14px; border-radius:0 6px 6px 0; font-size:14px; margin:14px 0; }
+  ul,ol { padding-left:24px; }
+  li { margin:4px 0; }
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>ECS 全量变更手册<br><span style="font-size:16px;color:var(--mut);font-weight:normal">AWS 迁移执行版</span></h1>
+<p class="meta">范围：2026-10-29 Claude OAuth 接线成功 → 2026-10-30，阿里云 ECS 全部变更 · 每项变更解决什么问题 · 按章节顺序执行即为 AWS 完整部署主线 · 排障细节见同目录 fixlist 文档</p>
+
+<h2>0. 变更总览（变更 → 解决什么问题）</h2>
+<table>
+<tr><th>#</th><th>变更</th><th>解决的问题</th><th>章节</th></tr>
+<tr><td>1</td><td>目录规划（/data 三域）</td><td>状态/项目/独立账号 CLI 数据隔离，重建容器不丢</td><td>§1</td></tr>
+<tr><td>2</td><td>源码检出 + 属主修正</td><td>git dubious ownership（rsync 带 uid 501）</td><td>§1</td></tr>
+<tr><td>3</td><td>kunpeng wrapper 进根镜像</td><td>容器内 <code>kunpeng</code> 命令不可用</td><td>§2</td></tr>
+<tr><td>4</td><td>两段式构建顺序</td><td>compose 只建薄层，根镜像改动不生效</td><td>§2</td></tr>
+<tr><td>5</td><td>userns 三件套</td><td>codex 沙箱（bwrap）全废：EPERM/EACCES/uid_map 三层拦截</td><td>§2</td></tr>
+<tr><td>6</td><td>Claude OAuth 接线（FIFO 喂 code）</td><td>无浏览器服务器上完成订阅账号登录</td><td>§3</td></tr>
+<tr><td>7</td><td>代理 CLI 级注入</td><td>账号区域风控（AWS 美区可跳过）</td><td>§3</td></tr>
+<tr><td>8</td><td>DISABLE_AUTOUPDATER=1</td><td>claude auto-update 的 npm prefix EACCES 报错</td><td>§3</td></tr>
+<tr><td>9</td><td>能力增强五层（一键脚本）</td><td>chromium 截图/中文字体/TS 工具链/插件/MCP 全不可用</td><td>§4</td></tr>
+<tr><td>10</td><td>.env 卫生（不写 KUNPENG_BACKEND + 600）</td><td>强制单后端掐死混合路由；密钥文件权限</td><td>§5</td></tr>
+<tr><td>11</td><td>项目级权限放行（loop run:*）</td><td>每个 flow id 单条维护放行规则</td><td>§5</td></tr>
+<tr><td>12</td><td>kaiwu 骨架（/opt/kaiwu/.env）</td><td>独立账号 CLI 的配置位预埋</td><td>§5</td></tr>
+</table>
+
+<h2>1. 基础层：目录规划 + 源码</h2>
+<pre><code># 数据盘三域隔离(ECS 实测布局,AWS 沿用):
+# /data/kunpeng/lib    → KUNPENG_STATE(状态卷: backend-auth 登录态/captures 知识库/projects.json)
+# /data/kunpeng/repos  → 被管理项目仓根(容器内 /workspace/repos)
+# /data/kaiwu-cli      → kaiwu 独立账号 CLI(codex/claude 各自 home)
+# /data/host-cli       → 宿主机 CLI(可选)
+mkdir -p /data/kunpeng/lib /data/kunpeng/repos /data/kaiwu-cli
+
+# 源码:git clone 天然无属主问题;若从 mac rsync 同步,必须修正属主(否则 git 报 dubious ownership):
+git clone -b feat/aws-deploy &lt;repo-url&gt; /opt/kunpeng-src
+# rsync 场景: chown -R root:root /opt/kunpeng-src</code></pre>
+
+<h2>2. 容器层：构建 + userns 三件套</h2>
+<pre><code>cd /opt/kunpeng-src
+bash deploy/aws/setup-instance.sh          # 生成 deploy/aws/.env(域名/状态路径等)
+
+# 两段式构建(顺序不可倒): 先根镜像(含 kunpeng wrapper),再薄层链
+docker build -t kunpeng-orchestrator:local -f Dockerfile .
+docker compose -f deploy/aws/docker-compose.aws.yml \
+   -f deploy/aws/docker-compose.claude-ext.yml \
+   -f deploy/aws/docker-compose.userns.yml up -d --build     # 薄层链必须 --build(根镜像变了而薄层 Dockerfile 没变,不 --build 不重建,实测踩过)
+
+# 宿主 sysctl(userns 层3): 先判别,Ubuntu 24.04+ 需要,Amazon Linux 2023 跳过
+unshare -Ur true 2&gt;/dev/null || {
+  echo 'kernel.apparmor_restrict_unprivileged_userns=0' &gt; /etc/sysctl.d/99-kunpeng-userns.conf
+  sysctl --system
+}</code></pre>
+<p><b>userns 三件套</b>（解决 codex 沙箱，文件已随仓库在 <code>deploy/aws/</code>）：</p>
+<table>
+<tr><th>层</th><th>配置</th><th>拦了什么</th></tr>
+<tr><td>1</td><td><code>seccomp=./seccomp-userns.json</code>（compose 覆盖）</td><td>EPERM：seccomp 拦 unshare/clone(CLONE_NEWUSER) 等 8 个 syscall</td></tr>
+<tr><td>2</td><td><code>apparmor=unconfined</code>（compose 覆盖）</td><td>EACCES：docker-default 对未声明 allow 的 mount 默认拒绝</td></tr>
+<tr><td>3</td><td>宿主 sysctl（上面命令）</td><td>uid_map 写入失败：Ubuntu 23.10+ 拦无 profile 进程的 userns</td></tr>
+</table>
+<div class="note"><b>重建语义两个坑</b>：<code>security_opt</code> 引用的 seccomp json 内容变化不触发 recreate（需 <code>--force-recreate</code>）；env_file 值变化会触发（实测有效）。</div>
+
+<h2>3. 后端层：Claude 接线 + codex</h2>
+<h3>3.1 Claude OAuth（无浏览器服务器，FIFO 喂 code）</h3>
+<pre><code># 容器内 CLAUDE_CONFIG_DIR 已由 compose 指到状态卷(登录态持久化,重建不丢):
+#   /var/lib/kunpeng/backend-auth/claude  ← 宿主 /data/kunpeng/lib/backend-auth/claude
+docker exec -it &lt;容器&gt; bash
+mkfifo /tmp/cl-oauth; (cat /tmp/cl-oauth | claude auth login --claudeai &gt; /tmp/cl-oauth.log 2&gt;&amp;1 &amp;)
+# 日志里取授权 URL → 本地浏览器完成授权 → 拿到 code 后:
+echo '&lt;code&gt;' &gt; /tmp/cl-oauth
+claude -p 'reply pong'        # 验证登录态</code></pre>
+<p>版本注意：claude 2.1.312 认证归 <code>auth</code> 命令组（<code>claude auth login</code>）；<code>claude login</code> 会被当 prompt 参数。</p>
+
+<h3>3.2 代理（仅受限区域出口需要；AWS 美区直连可跳过）</h3>
+<p><b>粒度选择</b>：CLI 级（settings.json 的 <code>env</code> 字段）——只影响 claude 进程；容器级 <code>HTTPS_PROXY</code> 会把 codex 等全部流量拖进代理，不要用。</p>
+<pre><code># /data/kunpeng/lib/backend-auth/claude/settings.json 的 "env" 块:
+"env": {
+  "HTTPS_PROXY": "http://&lt;user&gt;:&lt;pass&gt;@brd.superproxy.io:44445",
+  "NO_PROXY": "localhost,127.0.0.1"
+}</code></pre>
+<p>Node 只认大写 <code>HTTPS_PROXY</code> 且不支持 socks5 URL，统一 HTTP 代理。验证用变异法：改错密码 → <code>ERR_PROXY_TUNNEL</code> 证明流量真走代理。</p>
+
+<h3>3.3 DISABLE_AUTOUPDATER</h3>
+<pre><code># 同一 settings.json 的 "env" 块内加(容器 node 用户 + npm 全局 root 属主,auto-update 必失败):
+"DISABLE_AUTOUPDATER": "1"</code></pre>
+
+<h3>3.4 codex</h3>
+<p><code>CODEX_HOME</code> 已由 compose 指到状态卷；凭据从 ECS 迁移（scp <code>/data/kunpeng/lib/backend-auth/codex/</code> 整目录）或重登。codex 保持直连（不配代理）。</p>
+
+<h2>4. 能力增强层：一键脚本</h2>
+<pre><code>cd /opt/kunpeng-src
+bash deploy/scripts/setup-claude-code.sh --cloud aws --repo /workspace/repos/&lt;主项目&gt; \
+  [--stitch-file &lt;本机mjs&gt;] [--docs-dir &lt;本机战略稿目录&gt;]
+# 可选密钥(缺了自动跳过对应 MCP): GITHUB_PAT VERCEL_TOKEN NEON_API_KEY XCRAWL_KEY
+# 或放 deploy/aws/.claude-ext-secrets.env(自动 chmod 600,须已被 .gitignore 覆盖)</code></pre>
+<p>脚本做五层（幂等可重跑，已自动叠加 userns.yml 不会重置沙箱配置）：</p>
+<ol>
+<li><b>镜像</b>：chromium + fonts-noto-cjk（中文不乱码）+ npm 全局（chrome-devtools-mcp / server-filesystem / typescript / typescript-language-server）</li>
+<li><b>compose</b>：shm_size 1gb（chrome-devtools 需要，默认 64M 崩）</li>
+<li><b>状态层</b>：seo-audit 技能 / stitch 脚本 / 战略稿目录落 KUNPENG_STATE</li>
+<li><b>容器内</b>：插件（superpowers / frontend-design / typescript-lsp）+ MCP 双通道——claude 用户级（人工会话）+ kunpeng 注册表（loop agent）</li>
+<li><b>验证</b>：chromium 无头截图自测 / 插件 / MCP 列表</li>
+</ol>
+<p>MCP 清单（ECS 终态 8/8 Connected）：context7、cf-docs、github(PAT)、vercel、neon、kunpeng-codegraph、kunpeng-seo、chrome-devtools（xcrawl 已知损坏扣费，建议不装）。</p>
+
+<h2>5. 配置层</h2>
+<pre><code># .env 卫生:不写 KUNPENG_BACKEND(写了会强制单后端,掐死分阶段混合路由
+#   spec/audit/review/verify→claude,implement→codex),并收紧权限:
+chmod 600 /opt/kunpeng-src/deploy/aws/.env
+# 存量要解除: 注释该行 + 重建容器(env 值变化触发 recreate,实测有效)
+
+# 被管理项目权限放行(如 kaiwu),避免每个 flow id 单条维护:
+# &lt;项目&gt;/.claude/settings.local.json:
+{ "permissions": { "allow": ["Bash(kunpeng loop run:*)", "..."] } }
+
+# kaiwu 独立账号骨架(可选,600 权限):
+mkdir -p /opt/kaiwu &amp;&amp; cat &gt; /opt/kaiwu/.env &lt;&lt;'EOF'
+CODEX_HOME=/data/kaiwu-cli/codex
+CLAUDE_CONFIG_DIR=/data/kaiwu-cli/claude
+# 代理位(出口B,按需): HTTPS_PROXY=...
+# NEON_MIGRATION_DATABASE_URL=&lt;占位&gt;
+EOF
+chmod 600 /opt/kaiwu/.env</code></pre>
+
+<h2>6. 部署后验证清单（全绿才算成）</h2>
+<pre><code>docker exec &lt;容器&gt; sh -c 'curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:7777/healthz'  # 200
+docker exec &lt;容器&gt; unshare -Ur true &lt;/dev/null &amp;&amp; echo ok        # userns 三件套
+docker exec &lt;容器&gt; kunpeng version &lt;/dev/null                    # wrapper 可用
+docker exec &lt;容器&gt; sh -c 'cat /proc/1/environ | tr "\0" "\n" | grep -c KUNPENG_BACKEND' &lt;/dev/null  # 0
+docker exec &lt;容器&gt; codex sandbox -- true &lt;/dev/null              # codex 沙箱(loop agent 视角)
+docker exec &lt;容器&gt; claude mcp list &lt;/dev/null                    # MCP 全 Connected
+# claude 会话 'reply pong';chromium 截图含中文不乱码
+# 终极闭环: 派最小冒烟流走 kunpeng merge(ECS flow-smoke-test 已 verified)</code></pre>
+
+<h2>7. 运维铁律 + 排障备忘</h2>
+<ul>
+<li><code>docker compose exec -T</code> 一律 <code>&lt;/dev/null</code>（stdin 透传会污染容器内会话，ECS 实际发生过脚本后续步骤被 claude 吃掉）</li>
+<li><code>docker run</code> 测镜像必须 <code>--entrypoint sh</code>（否则命令被 ENTRYPOINT 当子命令吞）</li>
+<li>断言失败前等 healthz 就绪（chromium 自测曾误报）</li>
+<li>userns 错误码三层定位：EPERM=seccomp / EACCES=AppArmor / uid_map 失败=sysctl</li>
+<li>区域诊断：curl 裸打 API，401=放行 / 403=风控拦 / 405=到达路由层</li>
+<li>精确 grep（<code>brd.superproxy.io</code>）代替关键词 <code>proxy</code>（避免插件文档误报）</li>
+</ul>
+</div>
+</body>
+</html>
