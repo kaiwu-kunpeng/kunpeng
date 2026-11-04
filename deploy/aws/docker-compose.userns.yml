@@ -1,0 +1,15 @@
+# 放开 user namespace:codex Linux 沙箱(bwrap)需要 unshare/clone(CLONE_NEWUSER) + userns 内 mount
+# 来源: 阿里云 ECS 同款三件套实测(2026-10 排障结论,详见 docs/runbooks/2026-10-30-ecs-issues-aws-fixlist.md)
+# 三层配置:
+#   1. seccomp=./seccomp-userns.json  放行 unshare/setns/clone/clone3/mount/umount2/pivot_root/chroot
+#   2. apparmor=unconfined            容器脱离 AppArmor mediation(docker-default 默认拒绝 mount)
+#   3. 宿主 /etc/sysctl.d/99-kunpeng-userns.conf: apparmor_restrict_unprivileged_userns=0
+#      (仅 Ubuntu 23.10+ 需要;Amazon Linux 2023 无此限制,判别法见 runbook)
+# 防线保留: seccomp 精确白名单 + 无 capabilities + node 用户(非 root)
+# 回滚: 删除本文件 + rm /etc/sysctl.d/99-kunpeng-userns.conf && sysctl --system 后按文件链重建
+# 注意: 重跑 setup-claude-code.sh 后需按完整文件链再 up -d 一次(脚本已自动叠加本文件)
+services:
+  kunpeng:
+    security_opt:
+      - seccomp=./seccomp-userns.json
+      - apparmor=unconfined
